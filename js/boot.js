@@ -1,10 +1,10 @@
 // ========== TERMINAL BOOT SEQUENCE ==========
 
 const BOOT_LINES = [
-    "       BIOS v2.71 ............... OK",
-    "       MEMORY TEST: 640K ......... OK",
-    "       LOADING RETRO_ARCADE.SYS .. OK",
-    "       SCANNING PERIPHERALS ...... OK",
+    "       BIOS v2.71 ...................... OK",
+    "       MEMORY TEST: 640K ................ OK",
+    "       LOADING RETRO_ARCADE.SYS ....... OK",
+    "       SCANNING PERIPHERALS ........... OK",
     "",
     "                   #     #",
     "                  ## # # ##",
@@ -39,7 +39,7 @@ const BOOT_LINES = [
 ];
 
 function bootOutputHTML() {
-    return BOOT_LINES.join("\n").replace(/OK/g, '<span class="green">OK</span>') + "\n";
+    return BOOT_LINES.join("\n") + "\n";
 }
 
 function greenEnter(text) {
