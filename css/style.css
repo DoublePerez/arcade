@@ -1,0 +1,340 @@
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+/* ========== THEME ========== */
+:root {
+    --bg:            #0a0a0a;
+    --bg-arena:      #0d0d0d;
+    --bg-btn:        #1a1a1a;
+    --bg-btn-active: #2a2a2a;
+    --text:          #e0e0e0;
+    --text-bright:   #ffffff;
+    --text-dim:      #888888;
+    --text-muted:    #555555;
+    --border:        #444444;
+    --border-dim:    #333333;
+    --border-btn:    #666666;
+    --accent:        #33ff33;
+    --font:          'Press Start 2P', monospace;
+    --glow:          0 0 4px rgba(224, 224, 224, 0.3);
+    --glow-soft:     0 0 3px rgba(224, 224, 224, 0.2);
+    --glow-bright:   0 0 8px rgba(255, 255, 255, 0.4);
+    --glow-hover:    0 0 6px rgba(255, 255, 255, 0.4);
+    --scanline:      rgba(0, 0, 0, 0.15);
+    --fs-arena:      clamp(0.3rem, 1.35vw, 0.75rem);
+    --fs-menu:       clamp(0.32rem, 1.4vw, 0.65rem);
+    --fs-boot:       clamp(0.38rem, 1.2vw, 0.65rem);
+    --fs-hud:        clamp(0.4rem, 1.2vw, 0.6rem);
+    --fs-hud-score:  clamp(0.5rem, 1.5vw, 0.75rem);
+    --fs-hud-label:  clamp(0.35rem, 1vw, 0.5rem);
+    --fs-hud-hint:   clamp(0.3rem, 0.8vw, 0.45rem);
+    --fs-prompt:     clamp(0.5rem, 1.5vw, 0.75rem);
+    --fs-ctrl-label: clamp(0.35rem, 1vw, 0.5rem);
+    --fs-ctrl-btn:   clamp(0.38rem, 1.1vw, 0.55rem);
+    --fs-btn:        0.65rem;
+    --hud-height:    36px;
+}
+
+/* ========== RESET ========== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* ========== BODY ========== */
+body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow-x: hidden;
+}
+
+/* ========== CRT SCAN-LINE OVERLAY ========== */
+body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background: repeating-linear-gradient(
+        0deg,
+        transparent 0px,
+        transparent 1px,
+        var(--scanline) 1px,
+        var(--scanline) 2px
+    );
+    z-index: 9999;
+}
+
+/* ========== SCREEN MANAGEMENT ========== */
+.screen {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.screen.active { display: flex; }
+.hidden { display: none !important; }
+
+/* ========== SCORE HUD BAR ========== */
+#score-hud {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: var(--hud-height);
+    background: var(--bg);
+    border-bottom: 1px dashed var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    font-family: var(--font);
+    font-size: var(--fs-hud);
+    color: var(--text);
+    z-index: 100;
+    padding: 0 20px;
+}
+
+#score-hud.hidden { display: none !important; }
+
+#hud-score-a,
+#hud-score-b {
+    font-size: var(--fs-hud-score);
+    color: var(--text-bright);
+}
+
+.hud-separator {
+    color: var(--border);
+    font-size: var(--fs-hud-score);
+}
+
+#hud-player-label,
+#hud-cpu-label {
+    color: var(--text-dim);
+    font-size: var(--fs-hud-label);
+}
+
+#hud-escape-hint {
+    position: absolute;
+    right: 16px;
+    font-size: var(--fs-hud-hint);
+    color: var(--text-muted);
+}
+
+/* ========== BOOT SCREEN ========== */
+#screen-boot {
+    justify-content: center;
+    padding: 40px 20px;
+}
+
+#boot-output {
+    font-family: var(--font);
+    font-size: var(--fs-boot);
+    color: var(--text);
+    line-height: 1.9;
+    max-width: 90vw;
+    white-space: pre-wrap;
+    text-shadow: 0 0 6px rgba(224, 224, 224, 0.3);
+}
+
+#boot-prompt {
+    font-family: var(--font);
+    font-size: var(--fs-prompt);
+    color: var(--text-bright);
+    margin-top: 24px;
+    text-align: center;
+    text-shadow: var(--glow-bright);
+}
+
+/* ========== BLINK ANIMATION ========== */
+.blink { animation: blink-anim 1s step-end infinite; }
+
+@keyframes blink-anim {
+    0%, 50% { opacity: 1; }
+    51%, 100% { opacity: 0; }
+}
+
+/* ========== MENU SCREEN ========== */
+#menu-art {
+    font-family: var(--font);
+    font-size: var(--fs-menu);
+    line-height: 1.6;
+    color: var(--text);
+    white-space: pre;
+    text-shadow: var(--glow-soft);
+    max-width: 98vw;
+}
+
+/* ========== SCOREBOARD SCREEN ========== */
+#scores-art {
+    font-family: var(--font);
+    font-size: var(--fs-menu);
+    line-height: 1.6;
+    color: var(--text);
+    white-space: pre;
+    text-shadow: var(--glow-soft);
+    max-width: 98vw;
+}
+
+#scores-controls {
+    margin-top: 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+#scores-controls .ctrl-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+#scores-controls .ctrl-row.center { justify-content: center; }
+
+#scores-controls .ctrl-label {
+    font-family: var(--font);
+    font-size: var(--fs-ctrl-label);
+    color: var(--text-dim);
+    min-width: 70px;
+    text-align: right;
+}
+
+#scores-controls .ctrl-divider {
+    width: min(280px, 80vw);
+    border-top: 1px dashed var(--border-dim);
+    margin: 4px 0;
+}
+
+#scores-controls button {
+    font-family: var(--font);
+    font-size: var(--fs-ctrl-btn);
+    padding: 8px 12px;
+    background: transparent;
+    color: var(--text);
+    border: none;
+    cursor: pointer;
+    transition: color 0.15s;
+    min-height: 36px;
+}
+
+#scores-controls button:hover {
+    color: var(--text-bright);
+    text-shadow: var(--glow-hover);
+}
+
+#scores-controls button:active { color: var(--accent); }
+
+/* ========== GAME SCREENS (padding for HUD) ========== */
+.game-screen {
+    padding-top: 44px;
+    padding-bottom: 10px;
+}
+
+/* ========== GAME ARENAS ========== */
+.game-arena {
+    font-family: var(--font);
+    font-size: var(--fs-arena);
+    line-height: 1.35;
+    color: var(--text);
+    background: var(--bg-arena);
+    border: 1px dashed var(--border-dim);
+    padding: 10px 12px;
+    white-space: pre;
+    overflow: hidden;
+    text-shadow: var(--glow);
+    max-width: 98vw;
+}
+
+#screen-scores { padding: 40px 20px; }
+
+/* ========== BUTTONS ========== */
+button {
+    font-family: var(--font);
+    font-size: var(--fs-btn);
+    padding: 10px 14px;
+    background: var(--bg-btn);
+    color: var(--text);
+    border: 1px solid var(--border-btn);
+    cursor: pointer;
+    transition: border-color 0.15s, color 0.15s;
+}
+
+button:hover {
+    border-color: var(--text-bright);
+    color: var(--text-bright);
+}
+
+button:active { background: var(--bg-btn-active); }
+
+/* ========== RESPONSIVE: PHONES ========== */
+@media (max-width: 540px) {
+    .screen { padding: 12px 6px; }
+
+    .game-screen {
+        padding-top: 38px;
+        padding-bottom: 6px;
+    }
+
+    .game-arena {
+        padding: 6px 4px;
+        border: none;
+        background: transparent;
+    }
+
+    #score-hud {
+        height: 32px;
+        gap: 8px;
+        padding: 0 8px;
+    }
+
+    #hud-escape-hint { display: none; }
+    #screen-scores { padding: 20px 10px; }
+
+    button {
+        font-size: 0.55rem;
+        padding: 12px 14px;
+        min-height: 44px;
+    }
+
+    #scores-controls button {
+        min-height: 40px;
+        padding: 8px 10px;
+    }
+
+    #scores-controls .ctrl-label { min-width: 55px; }
+}
+
+/* ========== RESPONSIVE: LANDSCAPE (SHORT HEIGHT) ========== */
+@media (max-height: 500px) {
+    .game-arena {
+        font-size: clamp(0.22rem, 2.2vh, 0.55rem);
+        padding: 4px 6px;
+        line-height: 1.3;
+    }
+
+    .game-screen {
+        padding-top: 34px;
+        padding-bottom: 4px;
+    }
+
+    #score-hud { height: 28px; }
+    #hud-escape-hint { display: none; }
+}
+
+/* ========== RESPONSIVE: VERY SMALL PHONES ========== */
+@media (max-width: 360px) {
+    .game-arena { padding: 4px 2px; }
+    #scores-controls .ctrl-row { gap: 4px; }
+    #scores-controls .ctrl-label { min-width: 50px; }
+}

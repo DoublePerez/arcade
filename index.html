@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MYOA - RETRO ARCADE TERMINAL</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <!-- SCORE HUD (shown during games only) -->
+    <div id="score-hud" class="hidden">
+        <span id="hud-player-label">PLAYER</span>
+        <span id="hud-score-a">00</span>
+        <span class="hud-separator">|</span>
+        <span id="hud-score-b">00</span>
+        <span id="hud-cpu-label">CPU</span>
+        <span id="hud-escape-hint">[ESC] MENU</span>
+    </div>
+
+    <!-- SCREEN: Boot -->
+    <div class="screen active" id="screen-boot">
+        <pre id="boot-output"></pre>
+        <div id="boot-prompt" class="hidden blink">PRESS ENTER TO START</div>
+    </div>
+
+    <!-- SCREEN: Menu -->
+    <div class="screen" id="screen-menu">
+        <pre id="menu-art"></pre>
+    </div>
+
+    <!-- SCREEN: Scoreboard -->
+    <div class="screen" id="screen-scores">
+        <pre id="scores-art"></pre>
+        <div id="scores-controls">
+            <div class="ctrl-row">
+                <span class="ctrl-label" id="ctrl-label-a">PLAYER:</span>
+                <button onclick="scoreIncrement('a')">[+1]</button>
+                <button onclick="scoreDecrement('a')">[-1]</button>
+                <button onclick="scoreReset('a')">[RESET]</button>
+            </div>
+            <div class="ctrl-row">
+                <span class="ctrl-label">CPU:</span>
+                <button onclick="scoreIncrement('b')">[+1]</button>
+                <button onclick="scoreDecrement('b')">[-1]</button>
+                <button onclick="scoreReset('b')">[RESET]</button>
+            </div>
+            <div class="ctrl-divider"></div>
+            <div class="ctrl-row center">
+                <button onclick="scoreResetAll()">[RESET ALL SCORES]</button>
+            </div>
+            <div class="ctrl-row center">
+                <button onclick="enterNameMode()">[N] CHANGE NAME</button>
+                <button onclick="resetStats()">[R] RESET STATS</button>
+            </div>
+            <div class="ctrl-divider"></div>
+            <div class="ctrl-row center">
+                <button onclick="showScreen('screen-menu')">[ESC] BACK TO MENU</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCREEN: Pong -->
+    <div class="screen" id="screen-pong">
+        <pre id="pong-arena"></pre>
+    </div>
+
+    <!-- SCREEN: Tic Tac Toe -->
+    <div class="screen" id="screen-ttt">
+        <pre id="ttt-arena"></pre>
+    </div>
+
+    <!-- SCREEN: Score Keeper -->
+    <div class="screen" id="screen-keeper">
+        <pre id="keeper-arena"></pre>
+    </div>
+
+    <!-- SCREEN: Bingo -->
+    <div class="screen" id="screen-bingo">
+        <pre id="bingo-arena"></pre>
+    </div>
+
+    <!-- SCREEN: Snake -->
+    <div class="screen" id="screen-snake">
+        <pre id="snake-arena"></pre>
+    </div>
+
+    <!-- SCREEN: Space Invaders -->
+    <div class="screen" id="screen-invaders">
+        <pre id="invaders-arena"></pre>
+    </div>
+
+    <!-- Scripts: order matters -->
+    <script src="js/app.js"></script>
+    <script src="js/boot.js"></script>
+    <script src="js/menu.js"></script>
+    <script src="js/scores.js"></script>
+    <script src="js/pong.js"></script>
+    <script src="js/tictactoe.js"></script>
+    <script src="js/keeper.js"></script>
+    <script src="js/bingo.js"></script>
+    <script src="js/snake.js"></script>
+    <script src="js/invaders.js"></script>
+
+</body>
+</html>
