@@ -1,53 +1,71 @@
 // ========== SCOREBOARD SCREEN ==========
 
-var scoresMode = "view"; // "view" or "nameEntry"
-var nameBuffer = "";
+let scoresMode = "view";
+let nameBuffer = "";
 
-var BOARD_W = 50; // inner width of the ASCII box
+const BOARD_W = 50;
 
 function padLine(content) {
-    var inner = "  " + content;
-    while (inner.length < BOARD_W) {
-        inner += " ";
-    }
-    if (inner.length > BOARD_W) {
-        inner = inner.substring(0, BOARD_W);
-    }
+    let inner = "  " + content;
+    if (inner.length < BOARD_W) inner += " ".repeat(BOARD_W - inner.length);
+    if (inner.length > BOARD_W) inner = inner.substring(0, BOARD_W);
     return "  |" + inner + "|";
 }
 
-function emptyLine() {
-    return padLine("");
-}
-
-function dividerLine() {
-    return "  |" + "-".repeat(BOARD_W) + "|";
-}
-
-function barLine() {
-    return "  +" + "=".repeat(BOARD_W) + "+";
-}
-
-function separatorLine() {
-    return "  |" + "=".repeat(BOARD_W) + "|";
-}
+function emptyLine() { return padLine(""); }
+function dividerLine() { return "  |" + "-".repeat(BOARD_W) + "|"; }
+function barLine() { return "  +" + "=".repeat(BOARD_W) + "+"; }
+function separatorLine() { return "  |" + "=".repeat(BOARD_W) + "|"; }
 
 function initScoreboard() {
     scoresMode = "view";
     nameBuffer = "";
-    // Update the player label on the controls
-    var label = document.getElementById("ctrl-label-a");
-    if (label) {
-        var n = loadArcadeData().playerName;
-        label.textContent = n + ":";
-    }
+    const label = document.getElementById("ctrl-label-a");
+    if (label) label.textContent = loadArcadeData().playerName + ":";
     renderScoreboard();
 }
 
+// DRY helpers for repeated section patterns
+function renderMatchSection(lines, title, data, name) {
+    lines.push(dividerLine());
+    lines.push(emptyLine());
+    lines.push(padLine(title));
+    lines.push(emptyLine());
+
+    const pw = data ? data.playerWins : 0;
+    const cw = data ? data.cpuWins : 0;
+    lines.push(padLine("TOTAL WINS:  " + name + " " + pw + "  -  " + cw + " CPU"));
+
+    if (data && data.lastMatch) {
+        const lm = data.lastMatch;
+        lines.push(padLine("LAST MATCH:  " + name + " " + lm.playerScore + "  -  " + lm.cpuScore + " CPU"));
+        const winText = lm.winner === "player" ? name + " WINS!" : "CPU WINS!";
+        lines.push(padLine("             " + winText));
+    } else {
+        lines.push(padLine("LAST MATCH:  NO MATCHES YET"));
+    }
+
+    lines.push(emptyLine());
+}
+
+function renderSoloSection(lines, title, data) {
+    lines.push(dividerLine());
+    lines.push(emptyLine());
+    lines.push(padLine(title));
+    lines.push(emptyLine());
+
+    const d = data || { bestScore: 0, gamesPlayed: 0, lastScore: 0 };
+    lines.push(padLine("GAMES PLAYED:  " + d.gamesPlayed));
+    lines.push(padLine("BEST SCORE:    " + d.bestScore));
+    lines.push(padLine("LAST SCORE:    " + (d.lastScore > 0 ? d.lastScore : "NO GAMES YET")));
+
+    lines.push(emptyLine());
+}
+
 function renderScoreboard() {
-    var data = loadArcadeData();
-    var name = data.playerName;
-    var lines = [];
+    const data = loadArcadeData();
+    const name = data.playerName;
+    const lines = [];
 
     lines.push("");
     lines.push(barLine());
@@ -56,7 +74,7 @@ function renderScoreboard() {
     lines.push(emptyLine());
     lines.push(separatorLine());
 
-    // Player name section
+    // Player name / name entry
     if (scoresMode === "nameEntry") {
         lines.push(emptyLine());
         lines.push(padLine("ENTER NAME: " + nameBuffer + "_"));
@@ -68,120 +86,39 @@ function renderScoreboard() {
         lines.push(emptyLine());
     }
 
-    // ---- LIVE SCORE ----
+    // Live score
     lines.push(dividerLine());
     lines.push(emptyLine());
     lines.push(padLine("CURRENT SCORE"));
     lines.push(emptyLine());
-    var sa = String(scores.a).padStart(2, " ");
-    var sb = String(scores.b).padStart(2, " ");
+    const sa = String(scores.a).padStart(2, " ");
+    const sb = String(scores.b).padStart(2, " ");
     lines.push(padLine("       " + name + "  " + sa + "  -  " + sb + "  CPU"));
     lines.push(emptyLine());
 
-    // ---- PONG SECTION ----
-    lines.push(dividerLine());
-    lines.push(emptyLine());
-    lines.push(padLine("PONG"));
-    lines.push(emptyLine());
+    // Game sections
+    renderMatchSection(lines, "PONG", data.pong, name);
+    renderMatchSection(lines, "TIC TAC TOE", data.ttt, name);
+    renderMatchSection(lines, "BINGO", data.bingo, name);
+    renderSoloSection(lines, "SNAKE", data.snake);
+    renderSoloSection(lines, "SPACE INVADERS", data.invaders);
 
-    var pw = data.pong.playerWins;
-    var cw = data.pong.cpuWins;
-    lines.push(padLine("TOTAL WINS:  " + name + " " + pw + "  -  " + cw + " CPU"));
-
-    if (data.pong.lastMatch) {
-        var lm = data.pong.lastMatch;
-        lines.push(padLine("LAST MATCH:  " + name + " " + lm.playerScore + "  -  " + lm.cpuScore + " CPU"));
-        var winText = lm.winner === "player" ? name + " WINS!" : "CPU WINS!";
-        lines.push(padLine("             " + winText));
-    } else {
-        lines.push(padLine("LAST MATCH:  NO MATCHES YET"));
-    }
-
-    lines.push(emptyLine());
-
-    // ---- TIC TAC TOE SECTION ----
-    lines.push(dividerLine());
-    lines.push(emptyLine());
-    lines.push(padLine("TIC TAC TOE"));
-    lines.push(emptyLine());
-
-    var tpw = data.ttt ? data.ttt.playerWins : 0;
-    var tcw = data.ttt ? data.ttt.cpuWins : 0;
-    lines.push(padLine("TOTAL WINS:  " + name + " " + tpw + "  -  " + tcw + " CPU"));
-
-    if (data.ttt && data.ttt.lastMatch) {
-        var tlm = data.ttt.lastMatch;
-        lines.push(padLine("LAST MATCH:  " + name + " " + tlm.playerScore + "  -  " + tlm.cpuScore + " CPU"));
-        var tWinText = tlm.winner === "player" ? name + " WINS!" : "CPU WINS!";
-        lines.push(padLine("             " + tWinText));
-    } else {
-        lines.push(padLine("LAST MATCH:  NO MATCHES YET"));
-    }
-
-    lines.push(emptyLine());
-
-    // ---- BINGO SECTION ----
-    lines.push(dividerLine());
-    lines.push(emptyLine());
-    lines.push(padLine("BINGO"));
-    lines.push(emptyLine());
-
-    var bpw = data.bingo ? data.bingo.playerWins : 0;
-    var bcw = data.bingo ? data.bingo.cpuWins : 0;
-    lines.push(padLine("TOTAL WINS:  " + name + " " + bpw + "  -  " + bcw + " CPU"));
-
-    if (data.bingo && data.bingo.lastMatch) {
-        var blm = data.bingo.lastMatch;
-        lines.push(padLine("LAST MATCH:  " + name + " " + blm.playerScore + "  -  " + blm.cpuScore + " CPU"));
-        var bWinText = blm.winner === "player" ? name + " WINS!" : "CPU WINS!";
-        lines.push(padLine("             " + bWinText));
-    } else {
-        lines.push(padLine("LAST MATCH:  NO MATCHES YET"));
-    }
-
-    lines.push(emptyLine());
-
-    // ---- SNAKE SECTION ----
-    lines.push(dividerLine());
-    lines.push(emptyLine());
-    lines.push(padLine("SNAKE"));
-    lines.push(emptyLine());
-
-    var snakeData = data.snake || { bestScore: 0, gamesPlayed: 0, lastScore: 0 };
-    lines.push(padLine("GAMES PLAYED:  " + snakeData.gamesPlayed));
-    lines.push(padLine("BEST SCORE:    " + snakeData.bestScore));
-    if (snakeData.lastScore > 0) {
-        lines.push(padLine("LAST SCORE:    " + snakeData.lastScore));
-    } else {
-        lines.push(padLine("LAST SCORE:    NO GAMES YET"));
-    }
-
-    lines.push(emptyLine());
     lines.push(barLine());
 
-    document.getElementById("scores-art").textContent = lines.join("\n");
+    var output = lines.join("\n");
+    output = output.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    output = output.replace(
+        /^(  \|  )(PONG|TIC TAC TOE|BINGO|SNAKE|SPACE INVADERS)( +\|)$/gm,
+        '$1<span class="green">$2</span>$3'
+    );
+    document.getElementById("scores-art").innerHTML = output;
 }
 
 // ========== INTERACTIVE BUTTON HANDLERS ==========
-function scoreIncrement(team) {
-    increment(team);
-    renderScoreboard();
-}
-
-function scoreDecrement(team) {
-    decrement(team);
-    renderScoreboard();
-}
-
-function scoreReset(team) {
-    reset(team);
-    renderScoreboard();
-}
-
-function scoreResetAll() {
-    resetAll();
-    renderScoreboard();
-}
+function scoreIncrement(team) { increment(team); renderScoreboard(); }
+function scoreDecrement(team) { decrement(team); renderScoreboard(); }
+function scoreReset(team) { reset(team); renderScoreboard(); }
+function scoreResetAll() { resetAll(); renderScoreboard(); }
 
 function enterNameMode() {
     scoresMode = "nameEntry";
@@ -200,11 +137,10 @@ function handleScoresKey(e) {
         e.preventDefault();
 
         if (e.key === "Enter") {
-            var trimmed = nameBuffer.trim();
+            const trimmed = nameBuffer.trim();
             if (trimmed.length > 0) {
                 setPlayerName(trimmed.toUpperCase());
-                // Update the control label
-                var label = document.getElementById("ctrl-label-a");
+                const label = document.getElementById("ctrl-label-a");
                 if (label) label.textContent = trimmed.toUpperCase() + ":";
             }
             scoresMode = "view";
@@ -223,7 +159,6 @@ function handleScoresKey(e) {
         return;
     }
 
-    // Normal view mode
     if (e.key === "n" || e.key === "N") {
         enterNameMode();
     } else if (e.key === "r" || e.key === "R") {

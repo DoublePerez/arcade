@@ -1,83 +1,95 @@
 // ========== GAME SELECTION MENU ==========
 
-var MENU_TEXT =
-    "\n" +
-    "  +============================================+\n" +
-    "  |                                            |\n" +
-    "  |      R E T R O   A R C A D E              |\n" +
-    "  |      T E R M I N A L                       |\n" +
-    "  |                                            |\n" +
-    "  |============================================|\n" +
-    "  |                                            |\n" +
-    "  |   [1]  ASCII PONG                          |\n" +
-    "  |        Classic paddle vs CPU               |\n" +
-    "  |        Controls: W/S to move               |\n" +
-    "  |        First to 7 wins!                    |\n" +
-    "  |                                            |\n" +
-    "  |--------------------------------------------|\n" +
-    "  |                                            |\n" +
-    "  |   [2]  TIC TAC TOE                         |\n" +
-    "  |        Classic X vs O against CPU          |\n" +
-    "  |        WASD/Arrows + Enter to play         |\n" +
-    "  |        First to 3 wins!                    |\n" +
-    "  |                                            |\n" +
-    "  |--------------------------------------------|\n" +
-    "  |                                            |\n" +
-    "  |   [3]  B I N G O                           |\n" +
-    "  |        Classic 5x5 vs CPU                  |\n" +
-    "  |        Manual or Auto mark mode            |\n" +
-    "  |                                            |\n" +
-    "  |--------------------------------------------|\n" +
-    "  |                                            |\n" +
-    "  |   [4]  S N A K E                           |\n" +
-    "  |        Classic arcade snake                |\n" +
-    "  |        WASD/Arrows to steer                |\n" +
-    "  |        Eat food, grow longer!              |\n" +
-    "  |                                            |\n" +
-    "  |--------------------------------------------|\n" +
-    "  |                                            |\n" +
-    "  |   [5]  SPACE INVADERS                      |\n" +
-    "  |        Classic alien shooter               |\n" +
-    "  |        A/D to move, SPACE to fire          |\n" +
-    "  |        Survive the waves!                  |\n" +
-    "  |                                            |\n" +
-    "  |--------------------------------------------|\n" +
-    "  |                                            |\n" +
-    "  |   [6]  SCORE BOARD                         |\n" +
-    "  |        View match history + stats          |\n" +
-    "  |                                            |\n" +
-    "  |--------------------------------------------|\n" +
-    "  |                                            |\n" +
-    "  |   [7]  SCORE KEEPER                        |\n" +
-    "  |        Manual score tracker                |\n" +
-    "  |        +1 / -1 / Reset per team            |\n" +
-    "  |                                            |\n" +
-    "  |--------------------------------------------|\n" +
-    "  |                                            |\n" +
-    "  |   Press 1-7 to select                      |\n" +
-    "  |   ESC to return here from any game         |\n" +
-    "  |                                            |\n" +
-    "  +============================================+\n";
+const MENU_ITEMS = [
+    { key: "1", label: "ASCII PONG",      screen: "screen-pong" },
+    { key: "2", label: "TIC TAC TOE",     screen: "screen-ttt" },
+    { key: "3", label: "B I N G O",       screen: "screen-bingo" },
+    { key: "4", label: "S N A K E",       screen: "screen-snake" },
+    { key: "5", label: "SPACE INVADERS",  screen: "screen-invaders" },
+    { key: "6", label: "MAGIC 8 BALL",    screen: "screen-magic8" },
+    { key: "7", label: "SCORE BOARD",     screen: "screen-scores" },
+    { key: "8", label: "SCORE KEEPER",    screen: "screen-keeper" }
+];
+
+let menuCursor = 0;
+
+function padRight(str, len) {
+    while (str.length < len) str += " ";
+    return str;
+}
+
+function buildMenuText() {
+    const W = 44; // inner width
+    const empty = "  |" + " ".repeat(W) + "|";
+    const sep   = "  |" + "-".repeat(W) + "|";
+    let lines = [];
+
+    lines.push("");
+    lines.push("  +" + "=".repeat(W) + "+");
+    lines.push(empty);
+    lines.push("  |" + padRight("      R E T R O   A R C A D E", W) + "|");
+    lines.push("  |" + padRight("      T E R M I N A L", W) + "|");
+    lines.push(empty);
+    lines.push("  |" + "=".repeat(W) + "|");
+
+    for (let i = 0; i < MENU_ITEMS.length; i++) {
+        const item = MENU_ITEMS[i];
+        const sel = (i === menuCursor);
+        const arrow = sel ? '<span class="green">&gt;&gt;</span>' : "  ";
+        const label = "[" + item.key + "]  " + item.label;
+        const plainLen = 2 + 2 + 1 + label.length; // "  " + arrow(2) + " " + label
+        const pad = W - plainLen;
+        lines.push(empty);
+        lines.push("  |" + "  " + arrow + " " + label + (pad > 0 ? " ".repeat(pad) : "") + "|");
+        if (i === 5) { lines.push(empty); lines.push(sep); }
+    }
+
+    lines.push(empty);
+    lines.push(sep);
+    lines.push(empty);
+    lines.push("  |" + padRight("   Arrows to browse, Enter to play", W) + "|");
+    lines.push("  |" + padRight("   1-8 to quick-select", W) + "|");
+    lines.push("  |" + padRight("   ESC to return here from any game", W) + "|");
+    lines.push(empty);
+    lines.push("  +" + "=".repeat(W) + "+");
+
+    return lines.join("\n");
+}
+
+function renderMenu() {
+    document.getElementById("menu-art").innerHTML = buildMenuText();
+}
 
 function initMenu() {
-    var art = document.getElementById("menu-art");
-    art.textContent = MENU_TEXT;
+    renderMenu();
 }
 
 function handleMenuKey(e) {
-    if (e.key === "1") {
-        showScreen("screen-pong");
-    } else if (e.key === "2") {
-        showScreen("screen-ttt");
-    } else if (e.key === "3") {
-        showScreen("screen-bingo");
-    } else if (e.key === "4") {
-        showScreen("screen-snake");
-    } else if (e.key === "5") {
-        showScreen("screen-invaders");
-    } else if (e.key === "6") {
-        showScreen("screen-scores");
-    } else if (e.key === "7") {
-        showScreen("screen-keeper");
+    // number quick-select (existing behaviour)
+    const idx = MENU_ITEMS.findIndex(m => m.key === e.key);
+    if (idx !== -1) {
+        menuCursor = idx;
+        showScreen(MENU_ITEMS[idx].screen);
+        return;
+    }
+
+    // arrow navigation
+    if (e.key === "ArrowUp" || e.key === "w" || e.key === "W") {
+        e.preventDefault();
+        menuCursor = (menuCursor - 1 + MENU_ITEMS.length) % MENU_ITEMS.length;
+        renderMenu();
+        return;
+    }
+    if (e.key === "ArrowDown" || e.key === "s" || e.key === "S") {
+        e.preventDefault();
+        menuCursor = (menuCursor + 1) % MENU_ITEMS.length;
+        renderMenu();
+        return;
+    }
+
+    // confirm selection
+    if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        showScreen(MENU_ITEMS[menuCursor].screen);
     }
 }

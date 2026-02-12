@@ -139,10 +139,11 @@ body::after {
     font-family: var(--font);
     font-size: var(--fs-boot);
     color: var(--text);
-    line-height: 1.9;
+    line-height: 1.7;
     max-width: 90vw;
-    white-space: pre-wrap;
+    white-space: pre;
     text-shadow: 0 0 6px rgba(224, 224, 224, 0.3);
+    text-align: left;
 }
 
 #boot-prompt {
@@ -163,6 +164,11 @@ body::after {
 }
 
 /* ========== MENU SCREEN ========== */
+.green {
+    color: #00ff00;
+    text-shadow: 0 0 6px rgba(0, 255, 0, 0.5);
+}
+
 #menu-art {
     font-family: var(--font);
     font-size: var(--fs-menu);
@@ -248,7 +254,7 @@ body::after {
     line-height: 1.35;
     color: var(--text);
     background: var(--bg-arena);
-    border: 1px dashed var(--border-dim);
+    border: none;
     padding: 10px 12px;
     white-space: pre;
     overflow: hidden;

@@ -61,36 +61,42 @@
     </div>
 
     <!-- SCREEN: Pong -->
-    <div class="screen" id="screen-pong">
-        <pre id="pong-arena"></pre>
+    <div class="screen game-screen" id="screen-pong">
+        <pre class="game-arena" id="pong-arena"></pre>
     </div>
 
     <!-- SCREEN: Tic Tac Toe -->
-    <div class="screen" id="screen-ttt">
-        <pre id="ttt-arena"></pre>
+    <div class="screen game-screen" id="screen-ttt">
+        <pre class="game-arena" id="ttt-arena"></pre>
     </div>
 
     <!-- SCREEN: Score Keeper -->
-    <div class="screen" id="screen-keeper">
-        <pre id="keeper-arena"></pre>
+    <div class="screen game-screen" id="screen-keeper">
+        <pre class="game-arena" id="keeper-arena"></pre>
     </div>
 
     <!-- SCREEN: Bingo -->
-    <div class="screen" id="screen-bingo">
-        <pre id="bingo-arena"></pre>
+    <div class="screen game-screen" id="screen-bingo">
+        <pre class="game-arena" id="bingo-arena"></pre>
     </div>
 
     <!-- SCREEN: Snake -->
-    <div class="screen" id="screen-snake">
-        <pre id="snake-arena"></pre>
+    <div class="screen game-screen" id="screen-snake">
+        <pre class="game-arena" id="snake-arena"></pre>
     </div>
 
     <!-- SCREEN: Space Invaders -->
-    <div class="screen" id="screen-invaders">
-        <pre id="invaders-arena"></pre>
+    <div class="screen game-screen" id="screen-invaders">
+        <pre class="game-arena" id="invaders-arena"></pre>
     </div>
 
-    <!-- Scripts: order matters -->
+    <!-- SCREEN: Magic 8 Ball -->
+    <div class="screen game-screen" id="screen-magic8">
+        <pre class="game-arena" id="magic8-arena"></pre>
+    </div>
+
+    <!-- Scripts: grid.js first (shared utility), then app.js, then screens -->
+    <script src="js/grid.js"></script>
     <script src="js/app.js"></script>
     <script src="js/boot.js"></script>
     <script src="js/menu.js"></script>
@@ -101,6 +107,7 @@
     <script src="js/bingo.js"></script>
     <script src="js/snake.js"></script>
     <script src="js/invaders.js"></script>
+    <script src="js/magic8.js"></script>
 
 </body>
 </html>

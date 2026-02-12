@@ -1,45 +1,35 @@
 // ========== ASCII SPACE INVADERS ENGINE ==========
 
-var INV_W = 60;
-var INV_H = 25;
+const INV_W = 60;
+const INV_H = 25;
 
-// Alien sprites per type row
-var ALIEN_SPRITES = ["{O}", "<H>", "[M]", "/V\\"];
-var ALIEN_POINTS  = [10, 20, 30, 40];
-var ALIEN_ROWS = 4;
-var ALIEN_COLS = 8;
-var ALIEN_SPACING = 4;  // chars between alien centers
-var ALIEN_START_COL = 6;
+const ALIEN_SPRITES = ["{O}", "<H>", "[M]", "/V\\"];
+const ALIEN_POINTS  = [10, 20, 30, 40];
+const ALIEN_ROWS = 4;
+const ALIEN_COLS = 8;
+const ALIEN_SPACING = 4;
+const ALIEN_START_COL = 6;
 
-// Player sprite
-var PLAYER_SPRITE = "/A\\";
-var PLAYER_ROW = 22; // inside border
+const PLAYER_SPRITE = "/A\\";
+const PLAYER_ROW = 22;
 
-// Pre-allocate grid buffer (reused every frame)
-var invGrid = [];
-for (var _ir = 0; _ir < INV_H; _ir++) {
-    invGrid[_ir] = new Array(INV_W);
-}
+const invGrid = ArcadeGrid(INV_W, INV_H);
 
-var inv = {
+const inv = {
     running: false,
-    phase: "countdown",   // countdown | playing | wave_clear | gameover
+    phase: "countdown",
     countdown: 3,
     countdownTimer: null,
     animId: null,
     lastTime: 0,
-
-    // Player
     playerX: 30,
     lives: 3,
     score: 0,
     bestScore: 0,
-    bullet: null,          // {x, y} or null
+    bullet: null,
     keysDown: {},
-
-    // Aliens
-    aliens: [],            // [{row, col, alive, type, points, baseX, baseY}]
-    alienDir: 1,           // 1=right, -1=left
+    aliens: [],
+    alienDir: 1,
     alienOffsetX: 0,
     alienOffsetY: 0,
     alienBaseSpeed: 600,
@@ -47,20 +37,16 @@ var inv = {
     alienLastTick: 0,
     totalAliens: 0,
     aliveCount: 0,
-    enemyBullets: [],      // [{x, y}]
-
-    // Wave
+    enemyBullets: [],
     wave: 1,
     waveTimer: null,
-
-    // Invincibility after hit
     invincible: false,
     invincibleTimer: null
 };
 
 function initInvaders() {
     inv.running = true;
-    inv.phase = "countdown";
+    inv.phase = "intro";
     inv.score = 0;
     inv.lives = 3;
     inv.wave = 1;
@@ -70,11 +56,10 @@ function initInvaders() {
     inv.playerX = Math.floor(INV_W / 2);
     inv.invincible = false;
 
-    var data = loadArcadeData();
+    const data = loadArcadeData();
     inv.bestScore = (data.invaders && data.invaders.bestScore) || 0;
 
-    startInvadersWave();
-    invadersCountdown();
+    renderInvaders();
 
     return function stopInvaders() {
         inv.running = false;
@@ -93,19 +78,15 @@ function startInvadersWave() {
     inv.bullet = null;
     inv.enemyBullets = [];
 
-    // Each new wave aliens start 1 row lower, speed base decreases
-    var startRow = 3 + Math.min(inv.wave - 1, 5);
+    const startRow = 3 + Math.min(inv.wave - 1, 5);
     inv.alienBaseSpeed = Math.max(300, 600 - (inv.wave - 1) * 30);
     inv.alienSpeed = inv.alienBaseSpeed;
 
-    for (var r = 0; r < ALIEN_ROWS; r++) {
-        for (var c = 0; c < ALIEN_COLS; c++) {
+    for (let r = 0; r < ALIEN_ROWS; r++) {
+        for (let c = 0; c < ALIEN_COLS; c++) {
             inv.aliens.push({
-                row: r,
-                col: c,
-                alive: true,
-                type: r,
-                points: ALIEN_POINTS[r],
+                row: r, col: c, alive: true,
+                type: r, points: ALIEN_POINTS[r],
                 baseX: ALIEN_START_COL + c * ALIEN_SPACING,
                 baseY: startRow + r * 2
             });
@@ -116,7 +97,6 @@ function startInvadersWave() {
     inv.aliveCount = inv.totalAliens;
     inv.alienLastTick = 0;
 
-    // Update score display
     scores.a = inv.score;
     scores.b = inv.lives;
     updateDisplay();
@@ -144,33 +124,23 @@ function invadersCountdown() {
 function invadersLoop(timestamp) {
     if (!inv.running || inv.phase !== "playing") return;
 
-    var dt = timestamp - inv.lastTime;
+    let dt = timestamp - inv.lastTime;
     inv.lastTime = timestamp;
     if (dt > 50) dt = 50;
     if (dt < 1) dt = 1;
 
-    // Player movement (continuous, like Pong)
     updateInvadersPlayer(dt);
-
-    // Move player bullet (every frame for smooth movement)
     updatePlayerBullet();
 
-    // Alien tick (time-based)
     if (timestamp - inv.alienLastTick >= inv.alienSpeed) {
         inv.alienLastTick = timestamp;
         alienTick();
     }
 
-    // Move enemy bullets every frame for smooth fall
     updateEnemyBullets();
-
-    // Check collisions
     checkInvadersCollisions();
-
-    // Check if aliens reached player row
     checkAliensReachedBottom();
 
-    // Check wave clear
     if (inv.aliveCount <= 0 && inv.phase === "playing") {
         invadersWaveCleared();
         return;
@@ -184,32 +154,28 @@ function invadersLoop(timestamp) {
 }
 
 function updateInvadersPlayer(dt) {
-    var speed = 0.35 * dt;
+    const speed = 0.35 * dt;
     if (inv.keysDown["a"] || inv.keysDown["A"] || inv.keysDown["ArrowLeft"]) {
         inv.playerX -= speed * 0.06;
     }
     if (inv.keysDown["d"] || inv.keysDown["D"] || inv.keysDown["ArrowRight"]) {
         inv.playerX += speed * 0.06;
     }
-    // Clamp to inside borders (sprite is 3 chars wide, center at playerX)
     inv.playerX = Math.max(2, Math.min(INV_W - 3, inv.playerX));
 }
 
 function updatePlayerBullet() {
     if (!inv.bullet) return;
-    inv.bullet.y -= 0.5; // move up half a row per frame for smooth travel
-    if (inv.bullet.y < 1) {
-        inv.bullet = null; // bullet left the arena
-    }
+    inv.bullet.y -= 0.5;
+    if (inv.bullet.y < 1) inv.bullet = null;
 }
 
 function alienTick() {
-    // Check if any alive alien would hit a wall after moving
-    var needReverse = false;
-    for (var i = 0; i < inv.aliens.length; i++) {
-        var a = inv.aliens[i];
+    let needReverse = false;
+    for (let i = 0; i < inv.aliens.length; i++) {
+        const a = inv.aliens[i];
         if (!a.alive) continue;
-        var screenX = a.baseX + inv.alienOffsetX + inv.alienDir;
+        const screenX = a.baseX + inv.alienOffsetX + inv.alienDir;
         if (screenX <= 1 || screenX + 2 >= INV_W - 1) {
             needReverse = true;
             break;
@@ -223,25 +189,23 @@ function alienTick() {
         inv.alienOffsetX += inv.alienDir;
     }
 
-    // Alien firing: find bottom-most alive alien in each column, 3% chance to fire
+    // Alien firing
     if (inv.enemyBullets.length < 3) {
-        var bottomAliens = [];
-        for (var c = 0; c < ALIEN_COLS; c++) {
-            var bottom = null;
-            for (var r = ALIEN_ROWS - 1; r >= 0; r--) {
-                var idx = r * ALIEN_COLS + c;
+        const bottomAliens = [];
+        for (let c = 0; c < ALIEN_COLS; c++) {
+            for (let r = ALIEN_ROWS - 1; r >= 0; r--) {
+                const idx = r * ALIEN_COLS + c;
                 if (inv.aliens[idx] && inv.aliens[idx].alive) {
-                    bottom = inv.aliens[idx];
+                    bottomAliens.push(inv.aliens[idx]);
                     break;
                 }
             }
-            if (bottom) bottomAliens.push(bottom);
         }
 
-        for (var b = 0; b < bottomAliens.length; b++) {
+        for (let b = 0; b < bottomAliens.length; b++) {
             if (inv.enemyBullets.length >= 3) break;
             if (Math.random() < 0.03) {
-                var ba = bottomAliens[b];
+                const ba = bottomAliens[b];
                 inv.enemyBullets.push({
                     x: ba.baseX + inv.alienOffsetX + 1,
                     y: ba.baseY + inv.alienOffsetY + 1
@@ -252,7 +216,7 @@ function alienTick() {
 }
 
 function updateEnemyBullets() {
-    for (var i = inv.enemyBullets.length - 1; i >= 0; i--) {
+    for (let i = inv.enemyBullets.length - 1; i >= 0; i--) {
         inv.enemyBullets[i].y += 0.3;
         if (inv.enemyBullets[i].y >= INV_H - 1) {
             inv.enemyBullets.splice(i, 1);
@@ -263,27 +227,22 @@ function updateEnemyBullets() {
 function checkInvadersCollisions() {
     // Player bullet vs aliens
     if (inv.bullet) {
-        var bx = Math.round(inv.bullet.x);
-        var by = Math.round(inv.bullet.y);
+        const bx = Math.round(inv.bullet.x);
+        const by = Math.round(inv.bullet.y);
 
-        for (var i = 0; i < inv.aliens.length; i++) {
-            var a = inv.aliens[i];
+        for (let i = 0; i < inv.aliens.length; i++) {
+            const a = inv.aliens[i];
             if (!a.alive) continue;
 
-            var ax = a.baseX + inv.alienOffsetX;
-            var ay = a.baseY + inv.alienOffsetY;
+            const ax = a.baseX + inv.alienOffsetX;
+            const ay = a.baseY + inv.alienOffsetY;
 
-            // Alien occupies 3 chars at (ax, ay) to (ax+2, ay)
             if (by === ay && bx >= ax && bx <= ax + 2) {
                 a.alive = false;
                 inv.aliveCount--;
                 inv.score += a.points;
                 inv.bullet = null;
-
-                // Speed up remaining aliens
                 inv.alienSpeed = Math.max(100, inv.alienBaseSpeed - (inv.totalAliens - inv.aliveCount) * 15);
-
-                // Update HUD
                 scores.a = inv.score;
                 updateDisplay();
                 break;
@@ -293,13 +252,10 @@ function checkInvadersCollisions() {
 
     // Enemy bullets vs player
     if (!inv.invincible) {
-        var px = Math.round(inv.playerX);
-        for (var j = inv.enemyBullets.length - 1; j >= 0; j--) {
-            var eb = inv.enemyBullets[j];
-            var ebx = Math.round(eb.x);
-            var eby = Math.round(eb.y);
-
-            if (eby === PLAYER_ROW && ebx >= px - 1 && ebx <= px + 1) {
+        const px = Math.round(inv.playerX);
+        for (let j = inv.enemyBullets.length - 1; j >= 0; j--) {
+            const eb = inv.enemyBullets[j];
+            if (Math.round(eb.y) === PLAYER_ROW && Math.round(eb.x) >= px - 1 && Math.round(eb.x) <= px + 1) {
                 inv.enemyBullets.splice(j, 1);
                 playerHit();
                 break;
@@ -318,7 +274,6 @@ function playerHit() {
         return;
     }
 
-    // Brief invincibility
     inv.invincible = true;
     inv.invincibleTimer = setTimeout(function () {
         inv.invincible = false;
@@ -326,11 +281,9 @@ function playerHit() {
 }
 
 function checkAliensReachedBottom() {
-    for (var i = 0; i < inv.aliens.length; i++) {
-        var a = inv.aliens[i];
-        if (!a.alive) continue;
-        var ay = a.baseY + inv.alienOffsetY;
-        if (ay >= PLAYER_ROW) {
+    for (let i = 0; i < inv.aliens.length; i++) {
+        const a = inv.aliens[i];
+        if (a.alive && a.baseY + inv.alienOffsetY >= PLAYER_ROW) {
             invadersGameOver();
             return;
         }
@@ -352,15 +305,10 @@ function invadersWaveCleared() {
 
 function invadersGameOver() {
     inv.phase = "gameover";
-    if (inv.animId) {
-        cancelAnimationFrame(inv.animId);
-        inv.animId = null;
-    }
+    if (inv.animId) { cancelAnimationFrame(inv.animId); inv.animId = null; }
 
-    var data = loadArcadeData();
-    if (!data.invaders) {
-        data.invaders = { bestScore: 0, gamesPlayed: 0, lastScore: 0 };
-    }
+    const data = loadArcadeData();
+    if (!data.invaders) data.invaders = { bestScore: 0, gamesPlayed: 0, lastScore: 0 };
     data.invaders.gamesPlayed++;
     data.invaders.lastScore = inv.score;
     if (inv.score > data.invaders.bestScore) {
@@ -373,170 +321,127 @@ function invadersGameOver() {
 }
 
 function firePlayerBullet() {
-    if (inv.bullet) return; // only one at a time
-    inv.bullet = {
-        x: Math.round(inv.playerX),
-        y: PLAYER_ROW - 1
-    };
+    if (inv.bullet) return;
+    inv.bullet = { x: Math.round(inv.playerX), y: PLAYER_ROW - 1 };
 }
 
 // ========== RENDERING ==========
-
 function renderInvaders() {
-    var r, c;
+    const g = invGrid;
+    g.clear();
+    g.borders();
 
-    // Clear grid
-    for (r = 0; r < INV_H; r++) {
-        for (c = 0; c < INV_W; c++) {
-            invGrid[r][c] = " ";
-        }
-    }
+    // Score in top border
+    const pName = getPlayerName();
+    g.borderText(" " + pName + ": " + inv.score + "  BEST: " + inv.bestScore + "  LIVES: " + inv.lives + "  W" + inv.wave + " ", 0);
 
-    // Borders
-    for (c = 0; c < INV_W; c++) {
-        invGrid[0][c] = "-";
-        invGrid[INV_H - 1][c] = "-";
-    }
-    for (r = 0; r < INV_H; r++) {
-        invGrid[r][0] = "|";
-        invGrid[r][INV_W - 1] = "|";
-    }
-    invGrid[0][0] = "+";
-    invGrid[0][INV_W - 1] = "+";
-    invGrid[INV_H - 1][0] = "+";
-    invGrid[INV_H - 1][INV_W - 1] = "+";
+    // Only draw game elements during active play
+    if (inv.phase === "playing") {
+        // Aliens
+        for (let i = 0; i < inv.aliens.length; i++) {
+            const a = inv.aliens[i];
+            if (!a.alive) continue;
 
-    // Score + lives in top border
-    var pName = typeof getPlayerName === "function" ? getPlayerName() : "PLAYER";
-    var scoreText = " " + pName + ": " + inv.score + "  BEST: " + inv.bestScore + "  LIVES: " + inv.lives + "  W" + inv.wave + " ";
-    var scoreStart = Math.floor((INV_W - scoreText.length) / 2);
-    for (var s = 0; s < scoreText.length; s++) {
-        if (scoreStart + s > 0 && scoreStart + s < INV_W - 1) {
-            invGrid[0][scoreStart + s] = scoreText[s];
-        }
-    }
+            const ax = a.baseX + inv.alienOffsetX;
+            const ay = a.baseY + inv.alienOffsetY;
+            const sprite = ALIEN_SPRITES[a.type];
 
-    // Draw aliens
-    for (var i = 0; i < inv.aliens.length; i++) {
-        var a = inv.aliens[i];
-        if (!a.alive) continue;
-
-        var ax = a.baseX + inv.alienOffsetX;
-        var ay = a.baseY + inv.alienOffsetY;
-        var sprite = ALIEN_SPRITES[a.type];
-
-        for (var sc = 0; sc < sprite.length; sc++) {
-            var drawX = ax + sc;
-            if (drawX > 0 && drawX < INV_W - 1 && ay > 0 && ay < INV_H - 1) {
-                invGrid[ay][drawX] = sprite[sc];
+            for (let sc = 0; sc < sprite.length; sc++) {
+                const drawX = ax + sc;
+                if (drawX > 0 && drawX < INV_W - 1 && ay > 0 && ay < INV_H - 1) {
+                    g.set(ay, drawX, sprite[sc]);
+                }
             }
         }
-    }
 
-    // Draw player ship
-    var px = Math.round(inv.playerX);
-    // Blink when invincible
-    var showPlayer = true;
-    if (inv.invincible) {
-        showPlayer = Math.floor(performance.now() / 100) % 2 === 0;
-    }
-    if (showPlayer) {
-        for (var pc = 0; pc < PLAYER_SPRITE.length; pc++) {
-            var ppx = px - 1 + pc;
-            if (ppx > 0 && ppx < INV_W - 1 && PLAYER_ROW > 0 && PLAYER_ROW < INV_H - 1) {
-                invGrid[PLAYER_ROW][ppx] = PLAYER_SPRITE[pc];
+        // Player ship
+        const px = Math.round(inv.playerX);
+        let showPlayer = true;
+        if (inv.invincible) {
+            showPlayer = Math.floor(performance.now() / 100) % 2 === 0;
+        }
+        if (showPlayer) {
+            for (let pc = 0; pc < PLAYER_SPRITE.length; pc++) {
+                g.set(PLAYER_ROW, px - 1 + pc, PLAYER_SPRITE[pc]);
             }
         }
-    }
 
-    // Draw player bullet
-    if (inv.bullet) {
-        var bx = Math.round(inv.bullet.x);
-        var by = Math.round(inv.bullet.y);
-        if (bx > 0 && bx < INV_W - 1 && by > 0 && by < INV_H - 1) {
-            invGrid[by][bx] = "^";
+        // Player bullet
+        if (inv.bullet) {
+            g.setGreen(Math.round(inv.bullet.y), Math.round(inv.bullet.x), "^");
+        }
+
+        // Enemy bullets
+        for (let eb = 0; eb < inv.enemyBullets.length; eb++) {
+            g.set(Math.round(inv.enemyBullets[eb].y), Math.round(inv.enemyBullets[eb].x), "v");
         }
     }
 
-    // Draw enemy bullets
-    for (var eb = 0; eb < inv.enemyBullets.length; eb++) {
-        var ebx = Math.round(inv.enemyBullets[eb].x);
-        var eby = Math.round(inv.enemyBullets[eb].y);
-        if (ebx > 0 && ebx < INV_W - 1 && eby > 0 && eby < INV_H - 1) {
-            invGrid[eby][ebx] = "v";
-        }
-    }
-
-    // Controls hint in bottom border
-    var ctrlText = " A/D:MOVE  SPACE:FIRE  ESC:MENU ";
-    var ctrlStart = Math.floor((INV_W - ctrlText.length) / 2);
-    for (var ct = 0; ct < ctrlText.length; ct++) {
-        if (ctrlStart + ct > 0 && ctrlStart + ct < INV_W - 1) {
-            invGrid[INV_H - 1][ctrlStart + ct] = ctrlText[ct];
-        }
-    }
+    // Controls in bottom border
+    g.borderText(" A/D:MOVE  SPACE:FIRE  ESC:MENU ", INV_H - 1);
 
     // Phase overlays
+    const midRow = Math.floor(INV_H / 2);
+
+    if (inv.phase === "intro") {
+        g.textInner("S P A C E   I N V A D E R S", midRow - 6);
+        g.textInner("=".repeat(36), midRow - 4);
+        g.textInner("A / D  or  ARROWS:  MOVE", midRow - 2);
+        g.textInner("SPACE:              FIRE", midRow);
+        g.textInner("ESC:                MENU", midRow + 2);
+        g.textInner("=".repeat(36), midRow + 4);
+        g.textInner("PRESS ENTER TO START", midRow + 6);
+    }
+
     if (inv.phase === "countdown") {
-        drawInvText(invGrid, "WAVE " + inv.wave, Math.floor(INV_H / 2) - 2);
-        drawInvText(invGrid, "GET READY!", Math.floor(INV_H / 2));
-        drawInvText(invGrid, String(inv.countdown), Math.floor(INV_H / 2) + 2);
+        g.textInner("WAVE " + inv.wave, midRow - 2);
+        g.textInner("GET READY!", midRow);
+        g.textInner(String(inv.countdown), midRow + 2);
     }
 
     if (inv.phase === "wave_clear") {
-        drawInvText(invGrid, "========================", Math.floor(INV_H / 2) - 1);
-        drawInvText(invGrid, "W A V E  " + inv.wave + "  C L E A R !", Math.floor(INV_H / 2));
-        drawInvText(invGrid, "========================", Math.floor(INV_H / 2) + 1);
-        drawInvText(invGrid, "NEXT WAVE INCOMING...", Math.floor(INV_H / 2) + 3);
+        g.textInner("========================", midRow - 1);
+        g.textInner("W A V E  " + inv.wave + "  C L E A R !", midRow);
+        g.textInner("========================", midRow + 1);
+        g.textInner("NEXT WAVE INCOMING...", midRow + 3);
     }
 
     if (inv.phase === "gameover") {
-        drawInvText(invGrid, "========================", Math.floor(INV_H / 2) - 4);
-        drawInvText(invGrid, "G A M E  O V E R", Math.floor(INV_H / 2) - 2);
-        drawInvText(invGrid, "========================", Math.floor(INV_H / 2) - 1);
-        drawInvText(invGrid, "SCORE: " + inv.score + "  WAVES: " + inv.wave, Math.floor(INV_H / 2) + 1);
+        g.textInner("========================", midRow - 4);
+        g.textInner("G A M E  O V E R", midRow - 2);
+        g.textInner("========================", midRow - 1);
+        g.textInner("SCORE: " + inv.score + "  WAVES: " + inv.wave, midRow + 1);
         if (inv.score > 0 && inv.score >= inv.bestScore) {
-            drawInvText(invGrid, "** NEW BEST! **", Math.floor(INV_H / 2) + 3);
+            g.textInner("** NEW BEST! **", midRow + 3);
         } else {
-            drawInvText(invGrid, "BEST: " + inv.bestScore, Math.floor(INV_H / 2) + 3);
+            g.textInner("BEST: " + inv.bestScore, midRow + 3);
         }
-        drawInvText(invGrid, "[ENTER] REPLAY  [ESC] MENU", Math.floor(INV_H / 2) + 5);
+        g.textInner("[ENTER] REPLAY  [ESC] MENU", midRow + 5);
     }
 
-    // Build output string
-    var lines = [];
-    for (r = 0; r < INV_H; r++) {
-        lines[r] = invGrid[r].join("");
-    }
-    document.getElementById("invaders-arena").textContent = lines.join("\n");
-}
-
-function drawInvText(grid, text, row) {
-    var startCol = Math.floor((INV_W - text.length) / 2);
-    for (var i = 0; i < text.length; i++) {
-        if (startCol + i > 0 && startCol + i < INV_W - 1 && row > 0 && row < INV_H - 1) {
-            grid[row][startCol + i] = text[i];
-        }
-    }
+    g.render("invaders-arena");
 }
 
 // ========== INPUT ==========
-
 function handleInvadersKey(e) {
     if (["ArrowLeft", "ArrowRight", " "].indexOf(e.key) !== -1) {
         e.preventDefault();
     }
 
+    if (inv.phase === "intro" && (e.key === "Enter" || e.key === " ")) {
+        startInvadersWave();
+        invadersCountdown();
+        return;
+    }
+
     inv.keysDown[e.key] = true;
 
-    if (inv.phase === "playing") {
-        if (e.key === " ") {
-            firePlayerBullet();
-        }
+    if (inv.phase === "playing" && e.key === " ") {
+        firePlayerBullet();
     }
 
     if (e.key === "Enter" && inv.phase === "gameover") {
-        if (inv.animId) cancelAnimationFrame(inv.animId);
+        if (activeGame) activeGame();
         activeGame = initInvaders();
     }
 }

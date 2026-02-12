@@ -159,8 +159,9 @@ const SCREENS = {
     "screen-ttt":      { init: "initTicTacToe",    keyHandler: "handleTTTKey",    showHud: true, globalEsc: true },
     "screen-bingo":    { init: "initBingo",        keyHandler: "handleBingoKey",  showHud: true, globalEsc: true },
     "screen-snake":    { init: "initSnake",        keyHandler: "handleSnakeKey",  globalEsc: true },
-    "screen-invaders": { init: "initInvaders",     keyHandler: "handleInvadersKey", keyUpHandler: "handleInvadersKeyUp", showHud: true, globalEsc: true },
-    "screen-keeper":   { init: "initKeeper",       keyHandler: "handleKeeperKey" }
+    "screen-invaders": { init: "initInvaders",     keyHandler: "handleInvadersKey", keyUpHandler: "handleInvadersKeyUp", globalEsc: true },
+    "screen-keeper":   { init: "initKeeper",       keyHandler: "handleKeeperKey" },
+    "screen-magic8":   { init: "initMagic8",       keyHandler: "handleMagic8Key", globalEsc: true }
 };
 
 // ========== SCREEN MANAGER ==========

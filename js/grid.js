@@ -1,19 +1,22 @@
 // ========== SHARED ASCII GRID UTILITY ==========
-// Factory for creating and manipulating character grids used by all games.
-// Usage: const grid = ArcadeGrid(width, height);
 
 function ArcadeGrid(width, height) {
     const cells = [];
+    const highlights = [];
+    let hasHighlights = false;
     for (let r = 0; r < height; r++) {
         cells[r] = new Array(width);
+        highlights[r] = new Array(width);
     }
 
     function clear() {
         for (let r = 0; r < height; r++) {
             for (let c = 0; c < width; c++) {
                 cells[r][c] = " ";
+                highlights[r][c] = false;
             }
         }
+        hasHighlights = false;
     }
 
     function set(row, col, ch) {
@@ -29,37 +32,39 @@ function ArcadeGrid(width, height) {
         return " ";
     }
 
-    // Draw text. Centered if col is omitted. Full bounds.
+    // Write text at (row, col). If col omitted, center in full grid width.
     function text(str, row, col) {
-        const start = (col !== undefined) ? col : Math.floor((width - str.length) / 2);
+        if (col === undefined) col = Math.floor((width - str.length) / 2);
         for (let i = 0; i < str.length; i++) {
-            set(row, start + i, str[i]);
+            set(row, col + i, str[i]);
         }
     }
 
-    // Draw text inside borders only (rows 1..h-2, cols 1..w-2).
+    // Write text within inner bounds (1..w-2, rows 1..h-2) for bordered games.
+    // If col omitted, center in full grid width.
     function textInner(str, row, col) {
-        const start = (col !== undefined) ? col : Math.floor((width - str.length) / 2);
+        if (row < 1 || row > height - 2) return;
+        if (col === undefined) col = Math.floor((width - str.length) / 2);
         for (let i = 0; i < str.length; i++) {
-            const c = start + i;
-            if (c > 0 && c < width - 1 && row > 0 && row < height - 1) {
+            const c = col + i;
+            if (c >= 1 && c <= width - 2) {
                 cells[row][c] = str[i];
             }
         }
     }
 
-    // Draw centered text with column bounds restricted (preserves corner chars).
+    // Write centered text in a border row, preserving corners (col 0 and col w-1).
     function borderText(str, row) {
-        const start = Math.floor((width - str.length) / 2);
+        const startCol = Math.floor((width - str.length) / 2);
         for (let i = 0; i < str.length; i++) {
-            const c = start + i;
-            if (c > 0 && c < width - 1 && row >= 0 && row < height) {
+            const c = startCol + i;
+            if (c > 0 && c < width - 1) {
                 cells[row][c] = str[i];
             }
         }
     }
 
-    // Draw standard box border (+, -, |).
+    // Draw standard +/-/| box border.
     function borders() {
         for (let c = 0; c < width; c++) {
             cells[0][c] = "-";
@@ -76,41 +81,92 @@ function ArcadeGrid(width, height) {
     }
 
     // Draw multi-line ASCII art. Spaces are skipped (transparent).
-    function sprite(art, startRow, startCol) {
-        for (let r = 0; r < art.length; r++) {
-            for (let c = 0; c < art[r].length; c++) {
-                if (art[r][c] !== " ") {
-                    set(startRow + r, startCol + c, art[r][c]);
+    function sprite(lines, startRow, startCol) {
+        for (let r = 0; r < lines.length; r++) {
+            const line = lines[r];
+            for (let c = 0; c < line.length; c++) {
+                if (line[c] !== " ") {
+                    set(startRow + r, startCol + c, line[c]);
                 }
             }
         }
     }
 
-    function toString() {
-        const lines = [];
-        for (let r = 0; r < height; r++) {
-            lines[r] = cells[r].join("");
+    function setGreen(row, col, ch) {
+        set(row, col, ch);
+        if (row >= 0 && row < height && col >= 0 && col < width) {
+            highlights[row][col] = true;
+            hasHighlights = true;
         }
-        return lines.join("\n");
+    }
+
+    function textGreen(str, row, col) {
+        if (col === undefined) col = Math.floor((width - str.length) / 2);
+        for (let i = 0; i < str.length; i++) {
+            setGreen(row, col + i, str[i]);
+        }
+    }
+
+    function textInnerGreen(str, row, col) {
+        if (row < 1 || row > height - 2) return;
+        if (col === undefined) col = Math.floor((width - str.length) / 2);
+        for (let i = 0; i < str.length; i++) {
+            const c = col + i;
+            if (c >= 1 && c <= width - 2) {
+                cells[row][c] = str[i];
+                highlights[row][c] = true;
+                hasHighlights = true;
+            }
+        }
+    }
+
+    function toString() {
+        let out = "";
+        for (let r = 0; r < height; r++) {
+            for (let c = 0; c < width; c++) {
+                out += cells[r][c];
+            }
+            if (r < height - 1) out += "\n";
+        }
+        return out;
     }
 
     function render(elementId) {
-        document.getElementById(elementId).textContent = toString();
+        const el = document.getElementById(elementId);
+        if (!el) return;
+        if (hasHighlights) {
+            let html = "";
+            for (let r = 0; r < height; r++) {
+                let inGreen = false;
+                for (let c = 0; c < width; c++) {
+                    const ch = cells[r][c];
+                    const esc = ch === "<" ? "&lt;" : ch === ">" ? "&gt;" : ch === "&" ? "&amp;" : ch;
+                    if (highlights[r][c] && !inGreen) {
+                        html += '<span class="green">';
+                        inGreen = true;
+                    } else if (!highlights[r][c] && inGreen) {
+                        html += '</span>';
+                        inGreen = false;
+                    }
+                    html += esc;
+                }
+                if (inGreen) html += '</span>';
+                if (r < height - 1) html += "\n";
+            }
+            el.innerHTML = html;
+        } else {
+            el.textContent = toString();
+        }
     }
 
+    clear();
+
     return {
-        w: width,
-        h: height,
-        cells: cells,
-        clear: clear,
-        set: set,
-        get: get,
-        text: text,
-        textInner: textInner,
-        borderText: borderText,
-        borders: borders,
-        sprite: sprite,
-        toString: toString,
-        render: render
+        w: width, h: height, cells: cells,
+        clear: clear, set: set, get: get,
+        text: text, textInner: textInner, borderText: borderText,
+        borders: borders, sprite: sprite,
+        setGreen: setGreen, textGreen: textGreen, textInnerGreen: textInnerGreen,
+        toString: toString, render: render
     };
 }
