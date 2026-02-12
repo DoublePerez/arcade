@@ -207,9 +207,15 @@ document.addEventListener("keydown", function (e) {
     const config = SCREENS[currentScreen];
     if (!config) return;
 
-    if (config.globalEsc && (e.key === "Escape" || e.key === "q" || e.key === "Q")) {
-        showScreen("screen-menu");
-        return;
+    if (e.key === "Escape" || e.key === "q" || e.key === "Q") {
+        if (currentScreen === "screen-menu") {
+            showScreen("screen-boot");
+            return;
+        }
+        if (config.globalEsc) {
+            showScreen("screen-menu");
+            return;
+        }
     }
 
     if (config.keyHandler) {

@@ -173,20 +173,20 @@ function renderSnake() {
 
     if (snk.phase === "intro") {
         const w = SNAKE_W;
-        g.textInner("S N A K E", midRow - 6);
-        g.textInner("=".repeat(28), midRow - 4);
-        g.textInner("CONTROLS", midRow - 2);
-        g.textInner("WASD / ARROWS:  STEER", midRow);
-        g.textInner("OBJECTIVE", midRow + 2);
-        // "EAT * TO GROW" with * in green (centered)
+        const r = midRow;
+        g.textInner("S N A K E", r - 6);
+        g.textInner("=".repeat(28), r - 5);
+        g.textInner("CONTROLS", r - 3);
+        g.textInner("WASD / ARROWS:  STEER", r - 2);
+        g.textInner("OBJECTIVE", r);
         const eatLine = "EAT * TO GROW";
         const startCol = Math.floor((w - eatLine.length) / 2);
-        g.textInner("EAT ", midRow + 3, startCol);
-        g.setGreen(midRow + 3, startCol + 4, "*");
-        g.textInner(" TO GROW", midRow + 3, startCol + 5);
-        g.textInner("AVOID WALLS AND YOUR TAIL!", midRow + 5);
-        g.textInner("=".repeat(28), midRow + 7);
-        g.textInner("PRESS ENTER TO START", midRow + 9);
+        g.textInner("EAT ", r + 1, startCol);
+        g.setGreen(r + 1, startCol + 4, "*");
+        g.textInner(" TO GROW", r + 1, startCol + 5);
+        g.textInner("AVOID WALLS AND YOUR TAIL!", r + 3);
+        g.textInner("=".repeat(28), r + 5);
+        g.textInner("PRESS ENTER TO START", r + 7);
     }
 
     if (snk.phase === "countdown") {
