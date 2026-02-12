@@ -259,7 +259,7 @@ function renderBingo() {
     const shortName = name.length > 8 ? name.substring(0, 8) : name;
 
     g.text("B  I  N  G  O", 0);
-    g.text("ROUND " + bingo.round + "          FIRST TO " + BINGO_WIN_SCORE, 1);
+    g.text("ROUND " + bingo.round + "  |  FIRST TO " + BINGO_WIN_SCORE, 1);
 
     // Current call
     if (bingo.currentCall) {
@@ -280,8 +280,8 @@ function renderBingo() {
 
     g.text("-".repeat(64), 5, 3);
 
-    const playerStartCol = 11;
-    const cpuStartCol = 40;
+    const playerStartCol = 6;
+    const cpuStartCol = 43;
     const headerStr = "  B   I   N   G   O";
     const sep = "+---+---+---+---+---+";
     const cardStartRow = 9;
@@ -318,7 +318,7 @@ function renderBingo() {
         g.setGreen(cursorRow, cursorCol, ">");
     }
 
-    g.text(" X = MARKED     * = FREE     . = CPU HIDDEN", 21);
+    g.text("X = MARKED    * = FREE    . = CPU HIDDEN", 21);
 
     if (bingo.mode === "manual") {
         g.text("WASD/ARROWS: MOVE      ENTER/SPACE: MARK", 23);

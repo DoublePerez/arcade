@@ -304,9 +304,10 @@ function renderPong() {
 
     if (pong.phase === "gameover") {
         const winner = scores.a >= WIN_SCORE ? pName + " WINS!" : "CPU WINS!";
-        g.textInner(winner, midRow - 1);
-        g.textInner("ENTER TO REPLAY", midRow + 1);
-        g.textInner("ESC FOR MENU", midRow + 2);
+        g.textInner("====================", midRow - 2);
+        g.textInner(winner, midRow);
+        g.textInner("====================", midRow + 2);
+        g.textInner("[ENTER] REPLAY  [ESC] MENU", midRow + 4);
     }
 
     g.render("pong-arena");

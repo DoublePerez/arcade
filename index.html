@@ -22,6 +22,7 @@
     <div class="screen active" id="screen-boot">
         <pre id="boot-output"></pre>
         <div id="boot-prompt" class="hidden blink">PRESS ENTER TO START</div>
+        <!-- ESC hint is shown globally via #global-esc-hint -->
     </div>
 
     <!-- SCREEN: Menu -->
@@ -109,5 +110,7 @@
     <script src="js/invaders.js"></script>
     <script src="js/magic8.js"></script>
 
+    <!-- Global ESC hint (all screens) -->
+    <div id="global-esc-hint" class="global-esc-hint" aria-hidden="true">ESC to go back</div>
 </body>
 </html>

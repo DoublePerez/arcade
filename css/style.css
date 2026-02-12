@@ -3,7 +3,7 @@
 /* ========== THEME ========== */
 :root {
     --bg:            #0a0a0a;
-    --bg-arena:      #0d0d0d;
+    --bg-arena:      #0a0a0a;
     --bg-btn:        #1a1a1a;
     --bg-btn-active: #2a2a2a;
     --text:          #e0e0e0;
@@ -153,6 +153,33 @@ body::after {
     margin-top: 24px;
     text-align: center;
     text-shadow: var(--glow-bright);
+}
+
+#boot-skip-hint {
+    position: fixed;
+    bottom: 24px;
+    left: 0;
+    right: 0;
+    text-align: center;
+    font-family: var(--font);
+    font-size: var(--fs-hud-hint);
+    color: var(--text-muted);
+    text-shadow: var(--glow-soft);
+}
+
+/* ========== GLOBAL ESC HINT (all screens) ========== */
+.global-esc-hint {
+    position: fixed;
+    bottom: 16px;
+    left: 0;
+    right: 0;
+    text-align: center;
+    font-family: var(--font);
+    font-size: var(--fs-hud-hint);
+    color: var(--text-muted);
+    text-shadow: var(--glow-soft);
+    z-index: 100;
+    pointer-events: none;
 }
 
 /* ========== BLINK ANIMATION ========== */

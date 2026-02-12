@@ -172,13 +172,21 @@ function renderSnake() {
     const midRow = Math.floor(SNAKE_H / 2);
 
     if (snk.phase === "intro") {
-        g.textInner("S N A K E", midRow - 5);
-        g.textInner("=".repeat(30), midRow - 3);
-        g.textInner("WASD / ARROWS:  STEER", midRow - 1);
-        g.textInner("EAT * TO GROW", midRow + 1);
-        g.textInner("DON'T HIT WALLS OR YOURSELF!", midRow + 3);
-        g.textInner("=".repeat(30), midRow + 5);
-        g.textInner("PRESS ENTER TO START", midRow + 7);
+        const w = SNAKE_W;
+        g.textInner("S N A K E", midRow - 6);
+        g.textInner("=".repeat(28), midRow - 4);
+        g.textInner("CONTROLS", midRow - 2);
+        g.textInner("WASD / ARROWS:  STEER", midRow);
+        g.textInner("OBJECTIVE", midRow + 2);
+        // "EAT * TO GROW" with * in green (centered)
+        const eatLine = "EAT * TO GROW";
+        const startCol = Math.floor((w - eatLine.length) / 2);
+        g.textInner("EAT ", midRow + 3, startCol);
+        g.setGreen(midRow + 3, startCol + 4, "*");
+        g.textInner(" TO GROW", midRow + 3, startCol + 5);
+        g.textInner("AVOID WALLS AND YOUR TAIL!", midRow + 5);
+        g.textInner("=".repeat(28), midRow + 7);
+        g.textInner("PRESS ENTER TO START", midRow + 9);
     }
 
     if (snk.phase === "countdown") {
@@ -187,14 +195,14 @@ function renderSnake() {
     }
 
     if (snk.phase === "gameover") {
-        g.textInner("===================", midRow - 3);
-        g.textInner("G A M E  O V E R", midRow - 1);
-        g.textInner("===================", midRow);
-        g.textInner("SCORE: " + snk.score + "  LENGTH: " + snk.body.length, midRow + 2);
+        g.textInner("====================", midRow - 3);
+        g.textInner("G A M E   O V E R", midRow - 1);
+        g.textInner("====================", midRow + 1);
+        g.textInner("SCORE: " + snk.score + "  LENGTH: " + snk.body.length, midRow + 3);
         if (snk.score > 0 && snk.score >= snk.bestScore) {
-            g.textInner("** NEW BEST! **", midRow + 4);
+            g.textInner("** NEW BEST! **", midRow + 5);
         }
-        g.textInner("[ENTER] REPLAY  [ESC] MENU", midRow + 6);
+        g.textInner("[ENTER] REPLAY", midRow + 7);
     }
 
     g.render("snake-arena");

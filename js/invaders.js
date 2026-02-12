@@ -407,16 +407,16 @@ function renderInvaders() {
     }
 
     if (inv.phase === "gameover") {
-        g.textInner("========================", midRow - 4);
-        g.textInner("G A M E  O V E R", midRow - 2);
-        g.textInner("========================", midRow - 1);
-        g.textInner("SCORE: " + inv.score + "  WAVES: " + inv.wave, midRow + 1);
+        g.textInner("====================", midRow - 3);
+        g.textInner("G A M E   O V E R", midRow - 1);
+        g.textInner("====================", midRow + 1);
+        g.textInner("SCORE: " + inv.score + "  WAVES: " + inv.wave, midRow + 3);
         if (inv.score > 0 && inv.score >= inv.bestScore) {
-            g.textInner("** NEW BEST! **", midRow + 3);
+            g.textInner("** NEW BEST! **", midRow + 5);
         } else {
-            g.textInner("BEST: " + inv.bestScore, midRow + 3);
+            g.textInner("BEST: " + inv.bestScore, midRow + 5);
         }
-        g.textInner("[ENTER] REPLAY  [ESC] MENU", midRow + 5);
+        g.textInner("[ENTER] REPLAY  [ESC] MENU", midRow + 7);
     }
 
     g.render("invaders-arena");

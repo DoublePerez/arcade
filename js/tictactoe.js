@@ -225,6 +225,24 @@ function renderTTT() {
     const g = tttGrid;
     g.clear();
 
+    // Intro screen - clean grid, no board behind it
+    if (ttt.phase === "intro") {
+        const midRow = Math.floor(TTT_H / 2);
+        g.text("T I C   T A C   T O E", midRow - 6);
+        g.text("=".repeat(40), midRow - 4);
+        g.text("YOU (X)  vs  CPU (O)", midRow - 2);
+        g.text("FIRST TO " + TTT_WIN_SCORE + " WINS THE MATCH!", midRow);
+        g.text("=".repeat(40), midRow + 2);
+        g.text("WASD / ARROWS:  MOVE CURSOR", midRow + 5);
+        g.text("ENTER / SPACE:  PLACE YOUR X", midRow + 7);
+        g.text("ESC:            BACK TO MENU", midRow + 9);
+        if (ttt.blinkOn) {
+            g.text("PRESS ENTER TO START", midRow + 12);
+        }
+        g.render("ttt-arena");
+        return;
+    }
+
     g.text("T I C   T A C   T O E", 1);
 
     const pName = getPlayerName();
@@ -296,29 +314,11 @@ function renderTTT() {
         }
     }
 
-    // Intro overlay
-    if (ttt.phase === "intro") {
-        const midRow = Math.floor(TTT_H / 2);
-        g.text("T I C   T A C   T O E", midRow - 6);
-        g.text("=".repeat(40), midRow - 4);
-        g.text("YOU (X)  vs  CPU (O)", midRow - 2);
-        g.text("FIRST TO " + TTT_WIN_SCORE + " WINS THE MATCH!", midRow);
-        g.text("=".repeat(40), midRow + 2);
-        g.text("WASD / ARROWS:  MOVE CURSOR", midRow + 5);
-        g.text("ENTER / SPACE:  PLACE YOUR X", midRow + 7);
-        g.text("ESC:            BACK TO MENU", midRow + 9);
-        if (ttt.blinkOn) {
-            g.text("PRESS ENTER TO START", midRow + 12);
-        }
-        g.render("ttt-arena");
-        return;
-    }
-
     // Message + controls
     g.text(ttt.message, boardTop + boardH + 1);
 
     if (ttt.phase === "playing") {
-        g.text("WASD/ARROWS: MOVE    ENTER/SPACE: PLACE", boardTop + boardH + 3);
+        g.text("WASD/ARROWS: MOVE    ENTER/SPACE: PLACE X", boardTop + boardH + 3);
     } else if (ttt.phase === "match_end") {
         g.text("FINAL: YOU " + ttt.wins.player + " - " + ttt.wins.cpu + " CPU", boardTop + boardH + 3);
         g.text("ENTER: MENU", boardTop + boardH + 4);

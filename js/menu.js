@@ -18,6 +18,14 @@ function padRight(str, len) {
     return str;
 }
 
+function centerInBox(str, width) {
+    if (str.length >= width) return str.substring(0, width);
+    var pad = Math.floor((width - str.length) / 2);
+    var line = " ".repeat(pad) + str;
+    while (line.length < width) line += " ";
+    return line;
+}
+
 function buildMenuText() {
     const W = 44; // inner width
     const empty = "  |" + " ".repeat(W) + "|";
@@ -27,8 +35,8 @@ function buildMenuText() {
     lines.push("");
     lines.push("  +" + "=".repeat(W) + "+");
     lines.push(empty);
-    lines.push("  |" + padRight("      R E T R O   A R C A D E", W) + "|");
-    lines.push("  |" + padRight("      T E R M I N A L", W) + "|");
+    lines.push("  |" + centerInBox("R E T R O   A R C A D E", W) + "|");
+    lines.push("  |" + centerInBox("T E R M I N A L", W) + "|");
     lines.push(empty);
     lines.push("  |" + "=".repeat(W) + "|");
 
@@ -47,9 +55,9 @@ function buildMenuText() {
     lines.push(empty);
     lines.push(sep);
     lines.push(empty);
-    lines.push("  |" + padRight("   Arrows to browse, Enter to play", W) + "|");
-    lines.push("  |" + padRight("   1-8 to quick-select", W) + "|");
-    lines.push("  |" + padRight("   ESC to return here from any game", W) + "|");
+    lines.push("  |" + centerInBox("Arrows to browse, Enter to play", W) + "|");
+    lines.push("  |" + centerInBox("1-8 to quick-select", W) + "|");
+    lines.push("  |" + centerInBox("ESC to return here from any game", W) + "|");
     lines.push(empty);
     lines.push("  +" + "=".repeat(W) + "+");
 

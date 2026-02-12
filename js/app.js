@@ -187,6 +187,12 @@ function showScreen(screenId) {
         hud.classList.add("hidden");
     }
 
+    // Global ESC hint on all screens
+    const escHint = document.getElementById("global-esc-hint");
+    if (escHint) {
+        escHint.textContent = screenId === "screen-boot" ? "ESC to skip" : "ESC to go back";
+    }
+
     if (config && config.init) {
         const fn = window[config.init];
         if (typeof fn === "function") {

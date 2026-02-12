@@ -12,6 +12,14 @@ function padLine(content) {
     return "  |" + inner + "|";
 }
 
+function centerPadLine(content) {
+    var pad = Math.floor((BOARD_W - content.length) / 2);
+    var inner = " ".repeat(pad) + content;
+    if (inner.length < BOARD_W) inner += " ".repeat(BOARD_W - inner.length);
+    if (inner.length > BOARD_W) inner = inner.substring(0, BOARD_W);
+    return "  |" + inner + "|";
+}
+
 function emptyLine() { return padLine(""); }
 function dividerLine() { return "  |" + "-".repeat(BOARD_W) + "|"; }
 function barLine() { return "  +" + "=".repeat(BOARD_W) + "+"; }
@@ -70,7 +78,7 @@ function renderScoreboard() {
     lines.push("");
     lines.push(barLine());
     lines.push(emptyLine());
-    lines.push(padLine("   S C O R E B O A R D"));
+    lines.push(centerPadLine("S C O R E B O A R D"));
     lines.push(emptyLine());
     lines.push(separatorLine());
 
@@ -89,11 +97,11 @@ function renderScoreboard() {
     // Live score
     lines.push(dividerLine());
     lines.push(emptyLine());
-    lines.push(padLine("CURRENT SCORE"));
+    lines.push(centerPadLine("CURRENT SCORE"));
     lines.push(emptyLine());
     const sa = String(scores.a).padStart(2, " ");
     const sb = String(scores.b).padStart(2, " ");
-    lines.push(padLine("       " + name + "  " + sa + "  -  " + sb + "  CPU"));
+    lines.push(centerPadLine(name + "  " + sa + "  -  " + sb + "  CPU"));
     lines.push(emptyLine());
 
     // Game sections

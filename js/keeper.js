@@ -36,18 +36,18 @@ function initKeeper() {
     return function stopKeeper() {};
 }
 
-// Big ASCII digits (5 lines tall, 5 chars wide each)
+// Big ASCII digits (5 lines tall, 7 chars wide each)
 const BIG_DIGITS = {
-    "0": [" ___ ", "|   |", "|   |", "|   |", "|___|"],
-    "1": ["  _  ", " | | ", "   | ", "   | ", "  _|_"],
-    "2": [" ___ ", "|   |", "  _/ ", " /   ", "|___|"],
-    "3": [" ___ ", "    |", " ---|", "    |", " ___|"],
-    "4": ["     ", "|   |", "|___|", "    |", "    |"],
-    "5": [" ___ ", "|    ", "|___ ", "    |", " ___|"],
-    "6": [" ___ ", "|    ", "|___ ", "|   |", "|___|"],
-    "7": [" ___ ", "    |", "   / ", "  /  ", " /   "],
-    "8": [" ___ ", "|   |", "|___|", "|   |", "|___|"],
-    "9": [" ___ ", "|   |", "|___|", "    |", " ___|"]
+    "0": [" ##### ", "##   ##", "##   ##", "##   ##", " ##### "],
+    "1": ["   ##  ", "  ###  ", "   ##  ", "   ##  ", " ##### "],
+    "2": [" ##### ", "     ##", " ##### ", "##     ", " ##### "],
+    "3": [" ##### ", "     ##", "  #### ", "     ##", " ##### "],
+    "4": ["##   ##", "##   ##", " ######", "     ##", "     ##"],
+    "5": [" ######", "##     ", " ##### ", "     ##", " ##### "],
+    "6": [" ##### ", "##     ", " ######", "##   ##", " ##### "],
+    "7": ["#######", "     ##", "    ## ", "   ##  ", "  ##   "],
+    "8": [" ##### ", "##   ##", " ##### ", "##   ##", " ##### "],
+    "9": [" ##### ", "##   ##", " ######", "     ##", " ##### "]
 };
 
 function getDigitLines(num) {
@@ -74,61 +74,72 @@ function renderKeeper() {
     const g = keeperGrid;
     g.clear();
 
-    // Top border + title
+    // Top border + title + subtitle
     g.text("+" + "=".repeat(KEEPER_W - 2) + "+", 0);
     g.text("|" + " ".repeat(KEEPER_W - 2) + "|", 1);
-    g.text("S C O R E   K E E P E R", 1);
     g.text("|" + " ".repeat(KEEPER_W - 2) + "|", 2);
-    g.text("|" + "=".repeat(KEEPER_W - 2) + "|", 3);
+    g.text("|" + " ".repeat(KEEPER_W - 2) + "|", 3);
+    const title = "S C O R E   K E E P E R";
+    const titleCol = 1 + Math.floor((KEEPER_W - 2 - title.length) / 2);
+    g.text(title, 1, titleCol);
+    const subtitle = "Track points for any game";
+    const subCol = 1 + Math.floor((KEEPER_W - 2 - subtitle.length) / 2);
+    g.text(subtitle, 3, subCol);
+    g.text("|" + "=".repeat(KEEPER_W - 2) + "|", 4);
 
     const colA = Math.floor(KEEPER_W / 4);
     const colB = Math.floor(KEEPER_W * 3 / 4);
 
     // Side borders
-    for (let r = 4; r < KEEPER_H - 1; r++) {
+    for (let r = 5; r < KEEPER_H - 1; r++) {
         g.set(r, 0, "|");
         g.set(r, KEEPER_W - 1, "|");
     }
 
     // Center divider
     const midCol = Math.floor(KEEPER_W / 2);
-    for (let r = 4; r < 22; r++) {
+    for (let r = 5; r < 15; r++) {
         g.set(r, midCol, "|");
     }
 
     // Team labels
     const teamALabel = keeper.selected === "a" ? ">> TEAM  A <<" : "   TEAM  A   ";
     const teamBLabel = keeper.selected === "b" ? ">> TEAM  B <<" : "   TEAM  B   ";
-    g.text(teamALabel, 5, colA - 6);
-    g.text(teamBLabel, 5, colB - 6);
+    g.text(teamALabel, 6, colA - 6);
+    g.text(teamBLabel, 6, colB - 6);
     if (keeper.selected === "a") {
-        g.setGreen(5, colA - 6, ">");
-        g.setGreen(5, colA - 5, ">");
+        g.setGreen(6, colA - 6, ">");
+        g.setGreen(6, colA - 5, ">");
     }
     if (keeper.selected === "b") {
-        g.setGreen(5, colB - 6, ">");
-        g.setGreen(5, colB - 5, ">");
+        g.setGreen(6, colB - 6, ">");
+        g.setGreen(6, colB - 5, ">");
     }
 
     // Big score numbers
-    drawBigNumber(keeper.scores.a, 8, colA);
-    drawBigNumber(keeper.scores.b, 8, colB);
+    drawBigNumber(keeper.scores.a, 9, colA);
+    drawBigNumber(keeper.scores.b, 9, colB);
 
-    // Controls per team
-    g.text("[W] +1  [S] -1", 15, colA - 7);
-    g.text("[W] +1  [S] -1", 15, colB - 7);
-    g.text("[Q] RESET", 16, colA - 4);
-    g.text("[Q] RESET", 16, colB - 4);
+    g.text("|" + "-".repeat(KEEPER_W - 2) + "|", 15);
 
-    g.text("|" + "-".repeat(KEEPER_W - 2) + "|", 18);
+    // Controls - two columns
+    g.text("CONTROLS:", 17, 4);
+    g.text("LEFT/RIGHT  Select Team", 19, 4);
+    g.text("UP / W      +1 Point",    20, 4);
+    g.text("DOWN / S    -1 Point",    21, 4);
+    g.text("Q           Reset Team",  19, 33);
+    g.text("R           Reset All",   20, 33);
 
-    g.text("A/D or ARROWS: SELECT TEAM", 20);
-    g.text("W/S: +1 / -1      Q: RESET TEAM", 21);
-    g.text("R: RESET ALL      ESC: MENU", 22);
+    g.text("|" + "-".repeat(KEEPER_W - 2) + "|", 23);
 
-    g.text("|" + "-".repeat(KEEPER_W - 2) + "|", 24);
+    // ESC hint - centered
+    g.text("|" + " ".repeat(KEEPER_W - 2) + "|", 24);
     g.text("|" + " ".repeat(KEEPER_W - 2) + "|", 25);
-    g.text("C:\\SCORES>_", 25, 2);
+    g.text("|" + " ".repeat(KEEPER_W - 2) + "|", 26);
+    const escText = "[ESC] BACK TO MENU";
+    const escCol = Math.floor((KEEPER_W - escText.length) / 2);
+    g.text(escText, 25, escCol);
+
     g.text("+" + "=".repeat(KEEPER_W - 2) + "+", KEEPER_H - 1);
 
     g.render("keeper-arena");

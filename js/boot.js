@@ -27,7 +27,7 @@ const BOOT_LINES = [
     "  #   #  #  #   #      #   #  #   #  #",
     "  #   #  #   #   ####  #   #  ####   #####",
     "",
-    "             - T E R M I N A L -",
+    "            - T E R M I N A L -",
     "",
     "  ==========================================",
     "     (C) 2026 RETRO ARCADE SYSTEMS INC.",
@@ -38,24 +38,66 @@ const BOOT_LINES = [
     ""
 ];
 
+function bootOutputHTML() {
+    return BOOT_LINES.join("\n").replace(/OK/g, '<span class="green">OK</span>') + "\n";
+}
+
+function greenEnter(text) {
+    return text.replace(/ENTER/g, '<span class="green">ENTER</span>');
+}
+
 const TYPING_SPEED = 12;
 const LINE_DELAY = 60;
 let bootComplete = false;
 let bootTimeoutId = null;
-let bootPhase = "booting"; // "booting", "nameEntry", "done"
+let bootPhase = "splash"; // "splash", "booting", "nameEntry", "done"
 let bootNameBuffer = "";
 
 function initBoot() {
     const output = document.getElementById("boot-output");
     const prompt = document.getElementById("boot-prompt");
+    const escHint = document.getElementById("global-esc-hint");
+    if (escHint) escHint.textContent = "ESC to skip";
+    output.textContent = "";
+    prompt.classList.add("hidden");
+    bootComplete = false;
+    bootPhase = "splash";
+    bootNameBuffer = "";
+    renderSplash();
+}
+
+function renderSplash() {
+    var output = document.getElementById("boot-output");
+    var prompt = document.getElementById("boot-prompt");
+    output.textContent = [
+        "",
+        "",
+        "",
+        "  ==========================================",
+        "",
+        "         R E T R O   A R C A D E",
+        "              T E R M I N A L",
+        "",
+        "  ==========================================",
+        "",
+        ""
+    ].join("\n");
+    prompt.innerHTML = greenEnter("[ PRESS ENTER TO START ]");
+    prompt.classList.add("blink");
+    prompt.classList.remove("hidden");
+}
+
+function startBootSequence() {
+    var output = document.getElementById("boot-output");
+    var prompt = document.getElementById("boot-prompt");
     output.textContent = "";
     prompt.classList.add("hidden");
     bootComplete = false;
     bootPhase = "booting";
-    bootNameBuffer = "";
 
     typeBootSequence(output, 0, 0, function () {
         bootComplete = true;
+        output.innerHTML = bootOutputHTML();
         var p = document.getElementById("boot-prompt");
         if (getPlayerName() === "PLAYER") {
             bootPhase = "nameEntry";
@@ -63,7 +105,7 @@ function initBoot() {
             p.classList.remove("blink");
         } else {
             bootPhase = "done";
-            p.textContent = "PRESS ENTER TO START";
+            p.innerHTML = greenEnter("PRESS ENTER TO START");
             p.classList.add("blink");
         }
         p.classList.remove("hidden");
@@ -93,7 +135,7 @@ function typeBootSequence(outputEl, lineIdx, charIdx, onComplete) {
 
 function skipBoot() {
     if (bootTimeoutId) clearTimeout(bootTimeoutId);
-    document.getElementById("boot-output").textContent = BOOT_LINES.join("\n") + "\n";
+    document.getElementById("boot-output").innerHTML = bootOutputHTML();
     bootComplete = true;
 
     var p = document.getElementById("boot-prompt");
@@ -103,13 +145,28 @@ function skipBoot() {
         p.classList.remove("blink");
     } else {
         bootPhase = "done";
-        p.textContent = "PRESS ENTER TO START";
+        p.innerHTML = greenEnter("PRESS ENTER TO START");
         p.classList.add("blink");
     }
     p.classList.remove("hidden");
 }
 
 function handleBootKey(e) {
+    // ESC at any point = skip entire intro, go to menu
+    if (e.key === "Escape") {
+        if (bootTimeoutId) clearTimeout(bootTimeoutId);
+        showScreen("screen-menu");
+        return;
+    }
+
+    // Splash screen
+    if (bootPhase === "splash") {
+        if (e.key === "Enter" || e.key === " ") {
+            startBootSequence();
+        }
+        return;
+    }
+
     // Name entry mode
     if (bootPhase === "nameEntry") {
         e.preventDefault();
@@ -120,13 +177,8 @@ function handleBootKey(e) {
             }
             bootPhase = "done";
             var p = document.getElementById("boot-prompt");
-            p.textContent = "PRESS ENTER TO START";
+            p.innerHTML = greenEnter("PRESS ENTER TO START");
             p.classList.add("blink");
-        } else if (e.key === "Escape") {
-            bootPhase = "done";
-            var p2 = document.getElementById("boot-prompt");
-            p2.textContent = "PRESS ENTER TO START";
-            p2.classList.add("blink");
         } else if (e.key === "Backspace") {
             bootNameBuffer = bootNameBuffer.slice(0, -1);
             document.getElementById("boot-prompt").textContent = "ENTER YOUR NAME: " + bootNameBuffer + "_";
@@ -137,8 +189,8 @@ function handleBootKey(e) {
         return;
     }
 
-    // Boot sequence - skip or proceed
-    if (e.key === "Enter" || e.key === "Escape") {
+    // Boot sequence - Enter to fast-forward or proceed
+    if (e.key === "Enter") {
         if (bootComplete && bootPhase === "done") {
             showScreen("screen-menu");
         } else if (!bootComplete) {
