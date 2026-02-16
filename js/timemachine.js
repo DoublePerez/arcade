@@ -124,8 +124,8 @@ function renderTMIntro(g) {
     g.textInner("It calls itself CLOWN TOWN.", r + 2, lp + 2);
     r += 4;
     g.textInner("The structure appears to keep score.", r, lp + 2);
-    g.textInner("Two teams. No players found.", r + 1, lp + 2);
-    g.textInner("It has been running for some time.", r + 2, lp + 2);
+    g.textInner("Two teams. One tiny car.", r + 1, lp + 2);
+    g.textInner("No players found.", r + 2, lp + 2);
     r += 4;
     g.textInner("WARNING: This destination is 45 years", r, lp);
     g.textInner("beyond your current timeline.", r + 1, lp);
