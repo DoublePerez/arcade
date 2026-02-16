@@ -32,7 +32,7 @@ const MENU_ITEMS = [
     { key: "7", label: "TIME TRAVELER",   screen: "screen-timetraveler" },
     { key: "8", label: "SCORE KEEPER",    screen: "screen-keeper" },
     { key: "9", label: "SCORE BOARD",     screen: "screen-scores" },
-    { key: "0", label: "TIME MACHINE > 2026", url: "clown-keeper.html" }
+    { key: "0", label: "TIME MACHINE > 2026", screen: "screen-timemachine" }
 ];
 
 let menuCursor = 0;

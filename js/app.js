@@ -238,7 +238,8 @@ const SCREENS = {
     "screen-invaders": { init: "initInvaders",     keyHandler: "handleInvadersKey",  keyUpHandler: "handleInvadersKeyUp",  globalEsc: true },
     "screen-keeper":   { init: "initKeeper",       keyHandler: "handleKeeperKey" },
     "screen-magic8":   { init: "initMagic8",       keyHandler: "handleMagic8Key",    globalEsc: true },
-    "screen-timetraveler": { init: "initTimeTraveler", keyHandler: "handleTimeTravelerKey", globalEsc: true }
+    "screen-timetraveler": { init: "initTimeTraveler", keyHandler: "handleTimeTravelerKey", globalEsc: true },
+    "screen-timemachine":  { init: "initTimeMachine",  keyHandler: "handleTimeMachineKey",  globalEsc: true }
 };
 
 

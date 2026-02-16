@@ -221,11 +221,11 @@ function showSplash() {
     output.style.textAlign = "center";
     output.innerHTML = [
         "",
-        '<span class="splash-rule">===============================</span>',
+        '<span class="splash-rule">=======================================</span>',
         "",
-        '<span class="splash-title">7 GAMES  +  2 TOOLS</span>',
+        '<span class="splash-title">7 GAMES  +  2 TOOLS  +  1 TIME MACHINE</span>',
         "",
-        '<span class="splash-rule">===============================</span>',
+        '<span class="splash-rule">=======================================</span>',
         "",
         "",
         '<span class="splash-footer">v1.0  |  S/N 2PP-0260126-RA</span>',
