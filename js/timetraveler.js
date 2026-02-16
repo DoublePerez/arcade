@@ -53,7 +53,8 @@ const tt = {
     autoTimer: null,       // setTimeout for auto-advance (jump/arrival)
     running: false,
     blinkOn: true,
-    blinkTimer: null
+    blinkTimer: null,
+    ditherSel: 0           // 0 = Clown Town, 1 = Dither Garden
 };
 
 
@@ -259,6 +260,7 @@ function initTimeTraveler() {
     tt.onTypingDone = null;
     tt.running = true;
     tt.blinkOn = true;
+    tt.ditherSel = 0;
 
     tt.blinkTimer = setInterval(function () {
         tt.blinkOn = !tt.blinkOn;
@@ -441,28 +443,46 @@ function renderTTArrival(g) {
     }
 }
 
-/** Dither Garden — transition screen to Score Keeper. */
+/** Dither — two selectable destinations (matches Time Machine arrive). */
 function renderTTDither(g) {
     g.borders();
+    g.borderText(" TIME TRAVELER ", 0);
 
     var mid = Math.floor(TT_H / 2);
 
-    g.textInner("================================", mid - 4);
-    g.textInner("SURVIVAL INDEX COMPUTED.", mid - 2);
-    g.textInner("INITIATING DITHER GARDEN...", mid);
-    g.textInner("================================", mid + 2);
+    g.textInner("SURVIVAL INDEX COMPUTED.", mid - 6);
+    g.textInner("THE FUTURE AWAITS YOUR COMMAND.", mid - 4);
+    g.textInner("================================", mid - 2);
+    g.textInner("SELECT DESTINATION:", mid);
 
-    g.textGreen("DITHER GARDEN", mid + 5);
-    g.textInner("SCORE KEEPER", mid + 7);
-
-    if (tt.blinkOn) {
-        var contLine = "[ENTER] CONTINUE";
-        var contCol = Math.floor((TT_W - contLine.length) / 2);
-        g.textGreen("[ENTER]", mid + 10, contCol);
-        g.textInner(" CONTINUE", mid + 10, contCol + 7);
+    // Option 0: Clown Town
+    var lbl0 = "[1]  CLOWN TOWN";
+    var col0 = Math.floor((TT_W - lbl0.length - 3) / 2);
+    if (tt.ditherSel === 0) {
+        g.textGreen(">> " + lbl0, mid + 2, col0);
+    } else {
+        g.textInner("   " + lbl0, mid + 2, col0);
     }
 
-    g.borderText(" ENTER: CONTINUE   ESC: MENU ", TT_H - 1);
+    // Option 1: Dither Garden
+    var lbl1 = "[2]  DITHER GARDEN";
+    var col1 = Math.floor((TT_W - lbl1.length - 3) / 2);
+    if (tt.ditherSel === 1) {
+        g.textGreen(">> " + lbl1, mid + 4, col1);
+    } else {
+        g.textInner("   " + lbl1, mid + 4, col1);
+    }
+
+    g.textInner("================================", mid + 6);
+
+    if (tt.blinkOn) {
+        var line = "[ENTER] GO";
+        var col = Math.floor((TT_W - line.length) / 2);
+        g.textGreen("[ENTER]", mid + 8, col);
+        g.textInner(" GO", mid + 8, col + 7);
+    }
+
+    g.borderText(" ARROWS: SELECT   ENTER: GO   ESC: MENU ", TT_H - 1);
 }
 
 
@@ -623,10 +643,28 @@ function handleTimeTravelerKey(e) {
 
     // ── Jump & Arrival: non-interactive (auto-advancing) ─────
 
-    // ── Dither: Enter transitions to Score Keeper ───────────
+    // ── Dither: navigate destinations and confirm ──────────
     if (tt.phase === "dither") {
-        if (e.key === "Enter" || e.key === " ") {
-            showScreen("screen-keeper");
+        if (e.key === "ArrowUp" || e.key === "w" || e.key === "W") {
+            tt.ditherSel = 0;
+            sfx(330, 30);
+            renderTT();
+        } else if (e.key === "ArrowDown" || e.key === "s" || e.key === "S") {
+            tt.ditherSel = 1;
+            sfx(330, 30);
+            renderTT();
+        } else if (e.key === "1") {
+            tt.ditherSel = 0;
+            renderTT();
+        } else if (e.key === "2") {
+            tt.ditherSel = 1;
+            renderTT();
+        } else if (e.key === "Enter" || e.key === " ") {
+            if (tt.ditherSel === 0) {
+                window.location.href = "clown-keeper.html";
+            } else {
+                window.open("https://dithergarden.com", "_blank");
+            }
         }
         return;
     }
