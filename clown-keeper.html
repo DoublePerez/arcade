@@ -73,7 +73,7 @@
         }
 
         .title-img {
-            height: 30px;
+            height: 48px;
             image-rendering: pixelated;
             display: block;
             margin: 0 auto;
@@ -94,47 +94,48 @@
         }
 
         .info-btn {
-            width: 22px;
-            height: 22px;
-            background: var(--glass);
-            border: 1px solid var(--glass-border);
-            color: var(--muted);
+            width: 20px;
+            height: 20px;
+            background: transparent;
+            border: 1px solid var(--dim);
+            color: var(--dim);
             font-family: var(--font);
-            font-size: 10px;
+            font-size: 9px;
             font-weight: 700;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: all 0.2s;
+            transition: all 0.25s;
             outline: none;
             -webkit-tap-highlight-color: transparent;
         }
 
         .info-btn:hover {
-            background: var(--glass-hover);
-            border-color: rgba(255, 255, 255, 0.18);
-            color: var(--bright);
+            border-color: var(--muted);
+            color: var(--text);
         }
 
         .tooltip {
             position: absolute;
-            bottom: 32px;
+            bottom: 30px;
             left: 50%;
-            transform: translateX(-50%) translateY(4px);
-            width: 220px;
-            background: var(--surface);
-            border: 1px solid var(--dim);
-            padding: 14px 16px;
+            transform: translateX(-50%) translateY(6px);
+            width: 200px;
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            padding: 12px 14px;
             font-size: 8px;
             font-weight: 400;
             letter-spacing: 0.04em;
-            color: var(--text);
-            line-height: 1.9;
-            text-align: left;
+            color: var(--muted);
+            line-height: 1.8;
+            text-align: center;
             opacity: 0;
             pointer-events: none;
-            transition: all 0.2s;
+            transition: opacity 0.25s, transform 0.25s;
             z-index: 10;
         }
 
@@ -143,8 +144,6 @@
             pointer-events: auto;
             transform: translateX(-50%) translateY(0);
         }
-
-        .tooltip .key { color: var(--bright); }
 
         /* ── SCORES ───────────────────────────────────── */
         .scores {
@@ -381,7 +380,29 @@
 </div>
 
 <script>
+var STORAGE_KEY = "clownKeeper";
 var scoreA = 0, scoreB = 0, sel = "a", pts = [];
+
+function saveState() {
+    try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({
+            a: scoreA, b: scoreB, sel: sel, pts: pts
+        }));
+    } catch (e) {}
+}
+
+function loadState() {
+    try {
+        var saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) {
+            var d = JSON.parse(saved);
+            scoreA = d.a || 0;
+            scoreB = d.b || 0;
+            sel = d.sel || "a";
+            pts = d.pts || [];
+        }
+    } catch (e) {}
+}
 
 function renderDigits(n) {
     var s = String(n), h = "";
@@ -401,10 +422,11 @@ function addScore(team, d) {
         }
     }
     render();
+    saveState();
 }
 
 function resetAll() {
-    scoreA = 0; scoreB = 0; pts = []; render();
+    scoreA = 0; scoreB = 0; pts = []; render(); saveState();
 }
 
 function render() {
@@ -446,8 +468,8 @@ function render() {
 
 document.addEventListener("keydown", function (e) {
     switch (e.key) {
-        case "ArrowLeft": sel = "a"; render(); break;
-        case "ArrowRight": sel = "b"; render(); break;
+        case "ArrowLeft": sel = "a"; render(); saveState(); break;
+        case "ArrowRight": sel = "b"; render(); saveState(); break;
         case "ArrowUp": case "w": case "W":
             e.preventDefault(); addScore(sel, 1); break;
         case "ArrowDown": case "s": case "S":
@@ -456,6 +478,7 @@ document.addEventListener("keydown", function (e) {
     }
 });
 
+loadState();
 render();
 </script>
 
