@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0a0a0a">
+    <title>CLOWN TOWN — SCORE KEEPER</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg:           #0a0a0a;
+            --surface:      #141414;
+            --dim:          #2a2a2a;
+            --muted:        #555;
+            --text:         #999;
+            --bright:       #e0e0e0;
+            --white:        #fff;
+            --font:         'JetBrains Mono', monospace;
+            --glass:        rgba(255, 255, 255, 0.06);
+            --glass-border: rgba(255, 255, 255, 0.10);
+            --glass-hover:  rgba(255, 255, 255, 0.12);
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--bright);
+            font-family: var(--font);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            -webkit-font-smoothing: antialiased;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        /* ── LAYOUT ───────────────────────────────────── */
+        .app {
+            display: flex;
+            gap: 56px;
+            max-width: 940px;
+            width: 100%;
+            padding: 48px;
+            align-items: center;
+        }
+
+        /* ── CLOWN ────────────────────────────────────── */
+        .clown-col { flex-shrink: 0; }
+
+        .clown-col img {
+            width: 260px;
+            image-rendering: pixelated;
+            display: block;
+        }
+
+        /* ── SCORE KEEPER ─────────────────────────────── */
+        .keeper-col {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        /* ── TITLE ────────────────────────────────────── */
+        .title {
+            text-align: center;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--dim);
+        }
+
+        .title-img {
+            height: 30px;
+            image-rendering: pixelated;
+            display: block;
+            margin: 0 auto;
+        }
+
+        .title .sub {
+            font-size: 9px;
+            letter-spacing: 0.28em;
+            color: var(--muted);
+            margin-top: 10px;
+        }
+
+        /* ── INFO BUTTON + TOOLTIP ────────────────────── */
+        .tooltip-wrap {
+            position: relative;
+            display: inline-block;
+            margin-top: 10px;
+        }
+
+        .info-btn {
+            width: 22px;
+            height: 22px;
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            color: var(--muted);
+            font-family: var(--font);
+            font-size: 10px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            outline: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .info-btn:hover {
+            background: var(--glass-hover);
+            border-color: rgba(255, 255, 255, 0.18);
+            color: var(--bright);
+        }
+
+        .tooltip {
+            position: absolute;
+            bottom: 32px;
+            left: 50%;
+            transform: translateX(-50%) translateY(4px);
+            width: 220px;
+            background: var(--surface);
+            border: 1px solid var(--dim);
+            padding: 14px 16px;
+            font-size: 8px;
+            font-weight: 400;
+            letter-spacing: 0.04em;
+            color: var(--text);
+            line-height: 1.9;
+            text-align: left;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.2s;
+            z-index: 10;
+        }
+
+        .tooltip-wrap:hover .tooltip {
+            opacity: 1;
+            pointer-events: auto;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .tooltip .key { color: var(--bright); }
+
+        /* ── SCORES ───────────────────────────────────── */
+        .scores {
+            display: flex;
+            align-items: center;
+        }
+
+        .team {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .team-label {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.18em;
+            color: var(--muted);
+            transition: color 0.15s;
+        }
+
+        .team.selected .team-label { color: var(--white); }
+
+        .digits {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 2px;
+            min-height: 80px;
+        }
+
+        .digits img {
+            height: 80px;
+            image-rendering: pixelated;
+            display: block;
+        }
+
+        /* ── GLASS BUTTONS ────────────────────────────── */
+        .controls { display: flex; gap: 6px; }
+
+        .controls button {
+            width: 52px;
+            height: 36px;
+            font-family: var(--font);
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text);
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            cursor: pointer;
+            transition: all 0.15s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            outline: none;
+            -webkit-tap-highlight-color: transparent;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+        }
+
+        .controls button:hover {
+            color: var(--white);
+            background: var(--glass-hover);
+            border-color: rgba(255, 255, 255, 0.18);
+        }
+
+        .controls button:focus-visible {
+            border-color: rgba(255, 255, 255, 0.2);
+            color: var(--white);
+        }
+
+        .controls button:active {
+            transform: scale(0.94);
+            color: var(--white);
+            background: rgba(255, 255, 255, 0.16);
+            border-color: rgba(255, 255, 255, 0.22);
+        }
+
+        .divider {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--dim);
+            padding: 0 20px;
+            padding-bottom: 34px;
+            letter-spacing: 0.1em;
+        }
+
+        /* ── LEAD STATUS ──────────────────────────────── */
+        .lead {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.14em;
+            color: var(--muted);
+            text-align: center;
+            padding: 14px 0;
+            border-top: 1px solid var(--dim);
+            border-bottom: 1px solid var(--dim);
+        }
+
+        .lead .who { color: var(--white); }
+
+        /* ── HISTORY ──────────────────────────────────── */
+        .history {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .history-label {
+            font-size: 9px;
+            font-weight: 700;
+            letter-spacing: 0.18em;
+            color: var(--muted);
+        }
+
+        .dots {
+            display: flex;
+            gap: 3px;
+            flex-wrap: wrap;
+            min-height: 8px;
+        }
+
+        .dot { width: 7px; height: 7px; }
+        .dot.a { background: #c0c0c0; }
+        .dot.b { background: var(--muted); }
+
+        .total {
+            font-size: 9px;
+            letter-spacing: 0.1em;
+            color: var(--muted);
+        }
+
+        /* ── FOOTER HINTS ─────────────────────────────── */
+        .hints {
+            padding-top: 4px;
+            text-align: center;
+        }
+
+        .hint {
+            font-size: 8px;
+            letter-spacing: 0.08em;
+            color: var(--muted);
+            line-height: 2;
+        }
+
+        .hint span { color: var(--text); }
+
+        /* ── RESPONSIVE ───────────────────────────────── */
+        @media (max-width: 700px) {
+            .app {
+                flex-direction: column;
+                align-items: center;
+                gap: 32px;
+                padding: 36px 20px;
+            }
+            .clown-col img { width: 180px; }
+            .digits { min-height: 60px; }
+            .digits img { height: 60px; }
+            .controls button { width: 46px; height: 34px; font-size: 16px; }
+        }
+
+        @media (max-width: 420px) {
+            .app { padding: 24px 14px; gap: 24px; }
+            .clown-col img { width: 140px; }
+            .digits { min-height: 48px; }
+            .digits img { height: 48px; }
+            .controls button { width: 40px; height: 32px; font-size: 15px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="app">
+
+    <div class="clown-col">
+        <img src="assets/clown.png" alt="Clown">
+    </div>
+
+    <div class="keeper-col">
+
+        <div class="title">
+            <img class="title-img" src="assets/clowntext.png" alt="clown town">
+            <div class="sub">SCORE KEEPER</div>
+        </div>
+
+        <div class="scores">
+            <div class="team selected" id="team-a">
+                <div class="team-label">TEAM 1</div>
+                <div class="digits" id="score-a"></div>
+                <div class="controls">
+                    <button onclick="addScore('a',-1)">&minus;</button>
+                    <button onclick="addScore('a',1)">&plus;</button>
+                </div>
+            </div>
+            <div class="divider">VS</div>
+            <div class="team" id="team-b">
+                <div class="team-label">TEAM 2</div>
+                <div class="digits" id="score-b"></div>
+                <div class="controls">
+                    <button onclick="addScore('b',-1)">&minus;</button>
+                    <button onclick="addScore('b',1)">&plus;</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="lead" id="lead">TIED</div>
+
+        <div class="history">
+            <div class="history-label">HISTORY</div>
+            <div class="dots" id="dots"></div>
+            <div class="total" id="total">TOTAL: 0 PTS</div>
+        </div>
+
+        <div class="hints">
+            <div class="hint">
+                <span>&larr;&rarr;</span> SELECT
+                <span>&uarr;&darr;</span> SCORE
+                <span>R</span> RESET
+            </div>
+            <div class="tooltip-wrap">
+                <button class="info-btn" aria-label="Info">?</button>
+                <div class="tooltip">
+                    Two teams. One tiny car.<br>
+                    Keep track of every point<br>
+                    with buttons or keyboard.
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+var scoreA = 0, scoreB = 0, sel = "a", pts = [];
+
+function renderDigits(n) {
+    var s = String(n), h = "";
+    for (var i = 0; i < s.length; i++)
+        h += '<img src="assets/numbers/' + s[i] + '.png" alt="' + s[i] + '">';
+    return h;
+}
+
+function addScore(team, d) {
+    if (team === "a") scoreA = Math.max(0, scoreA + d);
+    else scoreB = Math.max(0, scoreB + d);
+    if (d > 0) {
+        pts.push(team);
+    } else if (d < 0) {
+        for (var i = pts.length - 1; i >= 0; i--) {
+            if (pts[i] === team) { pts.splice(i, 1); break; }
+        }
+    }
+    render();
+}
+
+function resetAll() {
+    scoreA = 0; scoreB = 0; pts = []; render();
+}
+
+function render() {
+    document.getElementById("score-a").innerHTML = renderDigits(scoreA);
+    document.getElementById("score-b").innerHTML = renderDigits(scoreB);
+
+    var teamA = document.getElementById("team-a");
+    var teamB = document.getElementById("team-b");
+    if (sel === "a") {
+        teamA.classList.add("selected");
+        teamB.classList.remove("selected");
+    } else {
+        teamB.classList.add("selected");
+        teamA.classList.remove("selected");
+    }
+
+    var el = document.getElementById("lead");
+    if (scoreA > scoreB) {
+        var diff = scoreA - scoreB;
+        el.innerHTML = '<span class="who">TEAM 1</span> LEADS BY ' + diff;
+    } else if (scoreB > scoreA) {
+        var diff = scoreB - scoreA;
+        el.innerHTML = '<span class="who">TEAM 2</span> LEADS BY ' + diff;
+    } else {
+        el.textContent = scoreA === 0 ? "TIED" : "TIED " + scoreA + " \u2014 " + scoreB;
+    }
+
+    var dotsEl = document.getElementById("dots");
+    var h = "";
+    var start = Math.max(0, pts.length - 80);
+    for (var i = start; i < pts.length; i++)
+        h += '<div class="dot ' + pts[i] + '"></div>';
+    dotsEl.innerHTML = h;
+
+    var total = scoreA + scoreB;
+    document.getElementById("total").textContent =
+        "TOTAL: " + total + " PTS";
+}
+
+document.addEventListener("keydown", function (e) {
+    switch (e.key) {
+        case "ArrowLeft": sel = "a"; render(); break;
+        case "ArrowRight": sel = "b"; render(); break;
+        case "ArrowUp": case "w": case "W":
+            e.preventDefault(); addScore(sel, 1); break;
+        case "ArrowDown": case "s": case "S":
+            e.preventDefault(); addScore(sel, -1); break;
+        case "r": case "R": resetAll(); break;
+    }
+});
+
+render();
+</script>
+
+</body>
+</html>

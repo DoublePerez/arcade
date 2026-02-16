@@ -1,4 +1,26 @@
-// ========== GAME SELECTION MENU ==========
+/**
+ * ============================================================================
+ *  MENU.JS — Game Selection Menu
+ * ============================================================================
+ *
+ *  The main hub of the arcade. Renders an ASCII-art bordered menu with:
+ *    • GAMES section  — 7 playable games (Pong, TTT, Bingo, Snake, Invaders, Magic 8, Time Traveler)
+ *    • TOOLS section  — 3 utilities (Time Machine 2026, Score Keeper, Scoreboard)
+ *
+ *  Navigation:
+ *    Arrow keys / WASD — move cursor
+ *    Number keys 1–0   — jump directly to a game/tool
+ *    Enter / Space      — launch highlighted item
+ *    ESC               — return to boot screen
+ *
+ *  Depends on:  app.js (showScreen)
+ * ============================================================================
+ */
+
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   MENU ITEM DEFINITIONS
+   ═══════════════════════════════════════════════════════════════════════════ */
 
 const MENU_ITEMS = [
     { key: "1", label: "ASCII PONG",      screen: "screen-pong" },
@@ -7,81 +29,132 @@ const MENU_ITEMS = [
     { key: "4", label: "S N A K E",       screen: "screen-snake" },
     { key: "5", label: "SPACE INVADERS",  screen: "screen-invaders" },
     { key: "6", label: "MAGIC 8 BALL",    screen: "screen-magic8" },
-    { key: "7", label: "SCORE BOARD",     screen: "screen-scores" },
-    { key: "8", label: "SCORE KEEPER",    screen: "screen-keeper" }
+    { key: "7", label: "TIME TRAVELER",   screen: "screen-timetraveler" },
+    { key: "8", label: "SCORE KEEPER",    screen: "screen-keeper" },
+    { key: "9", label: "SCORE BOARD",     screen: "screen-scores" },
+    { key: "0", label: "TIME MACHINE > 2026", url: "clown-keeper.html" }
 ];
 
 let menuCursor = 0;
 
-function padRight(str, len) {
-    while (str.length < len) str += " ";
-    return str;
-}
 
+/* ═══════════════════════════════════════════════════════════════════════════
+   ASCII LAYOUT HELPERS
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/** Center a string within a fixed-width field, padding with spaces. */
 function centerInBox(str, width) {
     if (str.length >= width) return str.substring(0, width);
-    var pad = Math.floor((width - str.length) / 2);
-    var line = " ".repeat(pad) + str;
+    const pad = Math.ceil((width - str.length) / 2);
+    let line = " ".repeat(pad) + str;
     while (line.length < width) line += " ";
     return line;
 }
 
-function buildMenuText() {
-    const W = 44; // inner width
-    const empty = "  |" + " ".repeat(W) + "|";
-    const sep   = "  |" + "-".repeat(W) + "|";
-    let lines = [];
+/** Build one row of the menu list. Highlighted row gets green ">>" arrows. */
+function menuRow(idx, lp, W) {
+    const item = MENU_ITEMS[idx];
+    const sel = (idx === menuCursor);
+    const tag = "[" + item.key + "]  " + item.label;
+    const visLen = lp + 3 + tag.length;
+    const pad = Math.max(0, W - visLen);
 
-    lines.push("");
+    if (sel) {
+        return "  |" + " ".repeat(lp) +
+            '<span class="green">&gt;&gt; ' + tag + '</span>' +
+            " ".repeat(pad) + "|";
+    }
+    return "  |" + " ".repeat(lp) + "   " + tag + " ".repeat(pad) + "|";
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   MENU BUILDER — Assembles the full ASCII menu frame
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/** Generate the complete menu art as an HTML string. */
+function buildMenuText() {
+    const W = 44;       // inner width of the menu box
+    const empty = "  |" + " ".repeat(W) + "|";
+    const LP = 4;       // left padding for menu items
+    const lines = [];
+
+    // ── Title ────────────────────────────────────────────────
     lines.push("  +" + "=".repeat(W) + "+");
     lines.push(empty);
     lines.push("  |" + centerInBox("R E T R O   A R C A D E", W) + "|");
     lines.push("  |" + centerInBox("T E R M I N A L", W) + "|");
     lines.push(empty);
-    lines.push("  |" + "=".repeat(W) + "|");
 
-    for (let i = 0; i < MENU_ITEMS.length; i++) {
-        const item = MENU_ITEMS[i];
-        const sel = (i === menuCursor);
-        const arrow = sel ? '<span class="green">&gt;&gt;</span>' : "  ";
-        const label = "[" + item.key + "]  " + item.label;
-        const plainLen = 2 + 2 + 1 + label.length; // "  " + arrow(2) + " " + label
-        const pad = W - plainLen;
-        lines.push(empty);
-        lines.push("  |" + "  " + arrow + " " + label + (pad > 0 ? " ".repeat(pad) : "") + "|");
-        if (i === 5) { lines.push(empty); lines.push(sep); }
+    // ── Games section ────────────────────────────────────────
+    let lbl = "[ G A M E S ]";
+    const lp = 3;
+    lines.push("  |" + "=".repeat(lp) + lbl + "=".repeat(W - lp - lbl.length) + "|");
+    lines.push(empty);
+
+    for (let i = 0; i < 7; i++) {
+        lines.push(menuRow(i, LP, W));
     }
+    lines.push(empty);
 
+    // ── Tools section ────────────────────────────────────────
+    lbl = "[ T O O L S ]";
+    lines.push("  |" + "-".repeat(lp) + lbl + "-".repeat(W - lp - lbl.length) + "|");
     lines.push(empty);
-    lines.push(sep);
+
+    for (let i = 7; i < MENU_ITEMS.length; i++) {
+        lines.push(menuRow(i, LP, W));
+    }
     lines.push(empty);
-    lines.push("  |" + centerInBox("Arrows to browse, Enter to play", W) + "|");
-    lines.push("  |" + centerInBox("1-8 to quick-select", W) + "|");
-    lines.push("  |" + centerInBox("ESC to return here from any game", W) + "|");
-    lines.push(empty);
+
+    // ── Footer ───────────────────────────────────────────────
+    lines.push("  +" + "-".repeat(W) + "+");
+    lines.push("  |" + centerInBox("ARROWS browse   ENTER play   ESC back", W) + "|");
     lines.push("  +" + "=".repeat(W) + "+");
 
     return lines.join("\n");
 }
 
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   RENDER & INIT
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/** Flush the menu art to the DOM. */
 function renderMenu() {
     document.getElementById("menu-art").innerHTML = buildMenuText();
 }
 
+/** Called by the screen manager when entering the menu screen. */
 function initMenu() {
     renderMenu();
 }
 
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   KEYBOARD HANDLER
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/** Launch a menu item — internal screen or external URL. */
+function launchMenuItem(item) {
+    if (item.url) {
+        window.location.href = item.url;
+    } else {
+        showScreen(item.screen);
+    }
+}
+
+/** Handle keyboard navigation and selection within the menu. */
 function handleMenuKey(e) {
-    // number quick-select (existing behaviour)
+    // Direct number-key selection (1–0)
     const idx = MENU_ITEMS.findIndex(m => m.key === e.key);
     if (idx !== -1) {
         menuCursor = idx;
-        showScreen(MENU_ITEMS[idx].screen);
+        launchMenuItem(MENU_ITEMS[idx]);
         return;
     }
 
-    // arrow navigation
+    // Cursor movement
     if (e.key === "ArrowUp" || e.key === "w" || e.key === "W") {
         e.preventDefault();
         menuCursor = (menuCursor - 1 + MENU_ITEMS.length) % MENU_ITEMS.length;
@@ -95,9 +168,9 @@ function handleMenuKey(e) {
         return;
     }
 
-    // confirm selection
+    // Confirm selection
     if (e.key === "Enter" || e.key === " ") {
         e.preventDefault();
-        showScreen(MENU_ITEMS[menuCursor].screen);
+        launchMenuItem(MENU_ITEMS[menuCursor]);
     }
 }

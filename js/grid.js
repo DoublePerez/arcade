@@ -1,14 +1,53 @@
-// ========== SHARED ASCII GRID UTILITY ==========
+/**
+ * ============================================================================
+ *  GRID.JS — Shared ASCII Grid Renderer
+ * ============================================================================
+ *
+ *  Every game screen in the arcade draws into an ArcadeGrid.
+ *  Think of it as a tiny framebuffer made of characters instead of pixels.
+ *
+ *  Usage:
+ *    const g = ArcadeGrid(60, 25);   // 60 columns x 25 rows
+ *    g.clear();
+ *    g.borders();                     // draw a +═══+ box
+ *    g.text("HELLO", 5);             // center "HELLO" on row 5
+ *    g.setGreen(10, 20, "*");        // place a green-highlighted "*"
+ *    g.render("my-arena");           // flush to <pre id="my-arena">
+ *
+ *  API summary:
+ *    clear()                — fill every cell with " "
+ *    set(row, col, ch)      — place a character
+ *    get(row, col)           — read a character
+ *    text(str, row, col?)   — write text (auto-centered if col omitted)
+ *    textInner(str, row, col?) — like text() but clipped to inner border area
+ *    borderText(str, row)   — center text on a border row, preserving corners
+ *    borders()              — draw a standard +/═/| box frame
+ *    sprite(lines, row, col)— draw multi-line ASCII art (spaces = transparent)
+ *    setGreen(row, col, ch) — place a green-highlighted character
+ *    textGreen(str, row, col?) — write an entire string in green
+ *    toString()             — return the grid as a plain string
+ *    render(elementId)      — flush to a DOM <pre>, with green <span>s if needed
+ *
+ *  Must be loaded before all other JS files (first <script> in index.html).
+ * ============================================================================
+ */
 
 function ArcadeGrid(width, height) {
-    const cells = [];
-    const highlights = [];
-    let hasHighlights = false;
+
+    /* ── Internal storage ─────────────────────────────────────────────── */
+
+    const cells = [];           // 2D array of characters
+    const highlights = [];      // 2D boolean array — true = render in green
+    let hasHighlights = false;  // fast-path flag: skip HTML generation when no green
+
     for (let r = 0; r < height; r++) {
         cells[r] = new Array(width);
         highlights[r] = new Array(width);
     }
 
+    /* ── Core cell operations ─────────────────────────────────────────── */
+
+    /** Reset every cell to " " and clear all highlights. */
     function clear() {
         for (let r = 0; r < height; r++) {
             for (let c = 0; c < width; c++) {
@@ -19,12 +58,14 @@ function ArcadeGrid(width, height) {
         hasHighlights = false;
     }
 
+    /** Place a single character at (row, col). Out-of-bounds writes are ignored. */
     function set(row, col, ch) {
         if (row >= 0 && row < height && col >= 0 && col < width) {
             cells[row][col] = ch;
         }
     }
 
+    /** Read the character at (row, col). Returns " " if out of bounds. */
     function get(row, col) {
         if (row >= 0 && row < height && col >= 0 && col < width) {
             return cells[row][col];
@@ -32,7 +73,9 @@ function ArcadeGrid(width, height) {
         return " ";
     }
 
-    // Write text at (row, col). If col omitted, center in full grid width.
+    /* ── Text placement ───────────────────────────────────────────────── */
+
+    /** Write a string starting at (row, col). If col is omitted, center horizontally. */
     function text(str, row, col) {
         if (col === undefined) col = Math.floor((width - str.length) / 2);
         for (let i = 0; i < str.length; i++) {
@@ -40,8 +83,11 @@ function ArcadeGrid(width, height) {
         }
     }
 
-    // Write text within inner bounds (1..w-2, rows 1..h-2) for bordered games.
-    // If col omitted, center in full grid width.
+    /**
+     * Write text clipped to the inner border area (columns 1..w-2, rows 1..h-2).
+     * Useful for placing text inside a bordered game arena.
+     * If col is omitted, center horizontally across the full width.
+     */
     function textInner(str, row, col) {
         if (row < 1 || row > height - 2) return;
         if (col === undefined) col = Math.floor((width - str.length) / 2);
@@ -53,7 +99,10 @@ function ArcadeGrid(width, height) {
         }
     }
 
-    // Write centered text in a border row, preserving corners (col 0 and col w-1).
+    /**
+     * Center text on a border row while preserving the corner characters
+     * at column 0 and column (width - 1).
+     */
     function borderText(str, row) {
         const startCol = Math.floor((width - str.length) / 2);
         for (let i = 0; i < str.length; i++) {
@@ -64,11 +113,13 @@ function ArcadeGrid(width, height) {
         }
     }
 
-    // Draw standard +/-/| box border.
+    /* ── Border drawing ───────────────────────────────────────────────── */
+
+    /** Draw a standard box border: + corners, = top/bottom, | sides. */
     function borders() {
         for (let c = 0; c < width; c++) {
-            cells[0][c] = "-";
-            cells[height - 1][c] = "-";
+            cells[0][c] = "=";
+            cells[height - 1][c] = "=";
         }
         for (let r = 0; r < height; r++) {
             cells[r][0] = "|";
@@ -80,7 +131,12 @@ function ArcadeGrid(width, height) {
         cells[height - 1][width - 1] = "+";
     }
 
-    // Draw multi-line ASCII art. Spaces are skipped (transparent).
+    /* ── Sprite drawing ───────────────────────────────────────────────── */
+
+    /**
+     * Draw multi-line ASCII art at (startRow, startCol).
+     * Spaces in the sprite are transparent (underlying cells show through).
+     */
     function sprite(lines, startRow, startCol) {
         for (let r = 0; r < lines.length; r++) {
             const line = lines[r];
@@ -92,6 +148,9 @@ function ArcadeGrid(width, height) {
         }
     }
 
+    /* ── Green highlighting ───────────────────────────────────────────── */
+
+    /** Place a character and mark it for green rendering. */
     function setGreen(row, col, ch) {
         set(row, col, ch);
         if (row >= 0 && row < height && col >= 0 && col < width) {
@@ -100,6 +159,7 @@ function ArcadeGrid(width, height) {
         }
     }
 
+    /** Write a full string in green. Auto-centers if col is omitted. */
     function textGreen(str, row, col) {
         if (col === undefined) col = Math.floor((width - str.length) / 2);
         for (let i = 0; i < str.length; i++) {
@@ -107,19 +167,9 @@ function ArcadeGrid(width, height) {
         }
     }
 
-    function textInnerGreen(str, row, col) {
-        if (row < 1 || row > height - 2) return;
-        if (col === undefined) col = Math.floor((width - str.length) / 2);
-        for (let i = 0; i < str.length; i++) {
-            const c = col + i;
-            if (c >= 1 && c <= width - 2) {
-                cells[row][c] = str[i];
-                highlights[row][c] = true;
-                hasHighlights = true;
-            }
-        }
-    }
+    /* ── Output ───────────────────────────────────────────────────────── */
 
+    /** Return the entire grid as a plain-text string (no HTML). */
     function toString() {
         let out = "";
         for (let r = 0; r < height; r++) {
@@ -131,6 +181,11 @@ function ArcadeGrid(width, height) {
         return out;
     }
 
+    /**
+     * Flush the grid to a DOM <pre> element.
+     * If any cells are highlighted, generates HTML with <span class="green">.
+     * Otherwise uses plain textContent for performance.
+     */
     function render(elementId) {
         const el = document.getElementById(elementId);
         if (!el) return;
@@ -159,6 +214,8 @@ function ArcadeGrid(width, height) {
         }
     }
 
+    /* ── Initialize and return public API ─────────────────────────────── */
+
     clear();
 
     return {
@@ -166,7 +223,7 @@ function ArcadeGrid(width, height) {
         clear: clear, set: set, get: get,
         text: text, textInner: textInner, borderText: borderText,
         borders: borders, sprite: sprite,
-        setGreen: setGreen, textGreen: textGreen, textInnerGreen: textInnerGreen,
+        setGreen: setGreen, textGreen: textGreen,
         toString: toString, render: render
     };
 }

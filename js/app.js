@@ -1,7 +1,33 @@
-// ========== SCORE SYSTEM ==========
+/**
+ * ============================================================================
+ *  APP.JS — Application Core
+ * ============================================================================
+ *
+ *  Central nervous system of the Retro Arcade Terminal.
+ *  Handles everything that sits *above* individual games:
+ *
+ *  1. SCORE SYSTEM           — Live match scores (Player vs CPU)
+ *  2. ARCADE DATA            — Persistent player profile, match history & stats
+ *  3. SCREEN REGISTRY        — Declares every screen and wires init / key handlers
+ *  4. SCREEN MANAGER         — Transitions between screens, manages cleanup
+ *  5. GLOBAL KEY DISPATCHER  — Routes keyboard input to the active screen
+ *
+ *  Load order:  grid.js → app.js → boot.js → menu.js → (game files)
+ * ============================================================================
+ */
+
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   1. SCORE SYSTEM
+   ────────────────────────────────────────────────────────────────────────────
+   Two-team score tracker (Player = "a", CPU = "b").
+   Persisted to localStorage so scores survive page reloads.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
 const STORAGE_KEY = "scoreKeeper";
 const scores = { a: 0, b: 0 };
 
+/** Load scores from localStorage, applying legacy migration if needed. */
 function load() {
     try {
         const saved = localStorage.getItem(STORAGE_KEY);
@@ -13,44 +39,56 @@ function load() {
     } catch (e) {
         // ignore corrupt data
     }
+
+    // One-time migration: merge old Score Keeper storage into main scores
+    try {
+        const oldKeeper = localStorage.getItem("keeperScores");
+        if (oldKeeper) {
+            const parsed = JSON.parse(oldKeeper);
+            if (scores.a === 0 && scores.b === 0) {
+                scores.a = parsed.a || 0;
+                scores.b = parsed.b || 0;
+            }
+            localStorage.removeItem("keeperScores");
+            save();
+        }
+    } catch (e) {
+        // ignore corrupt data
+    }
+
     updateDisplay();
 }
 
+/** Persist current scores to localStorage. */
 function save() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(scores));
 }
 
-function updateDisplay() {
-    const hudA = document.getElementById("hud-score-a");
-    const hudB = document.getElementById("hud-score-b");
-    if (hudA) hudA.textContent = String(scores.a).padStart(2, "0");
-    if (hudB) hudB.textContent = String(scores.b).padStart(2, "0");
+/** Scores are displayed within each game's own rendered grid. */
+function updateDisplay() {}
 
-    const hudLabel = document.getElementById("hud-player-label");
-    if (hudLabel) {
-        const name = loadArcadeData().playerName;
-        hudLabel.textContent = name.length > 8 ? name.substring(0, 8) : name;
-    }
-}
-
+/** Add 1 point to a team ("a" or "b"). */
 function increment(team) {
     scores[team] += 1;
     updateDisplay();
     save();
 }
 
+/** Remove 1 point from a team (floor at 0). */
 function decrement(team) {
     if (scores[team] > 0) scores[team] -= 1;
     updateDisplay();
     save();
 }
 
+/** Reset a single team's score to 0. */
 function reset(team) {
     scores[team] = 0;
     updateDisplay();
     save();
 }
 
+/** Reset both teams to 0. */
 function resetAll() {
     scores.a = 0;
     scores.b = 0;
@@ -58,9 +96,21 @@ function resetAll() {
     save();
 }
 
-// ========== ARCADE DATA (MATCH HISTORY + NAME) ==========
-const ARCADE_STORAGE_KEY = "arcadeData";
 
+/* ═══════════════════════════════════════════════════════════════════════════
+   2. ARCADE DATA  — Player Profile & Match History
+   ────────────────────────────────────────────────────────────────────────────
+   Stores per-game win/loss records and high scores.
+   Cached in memory after first load to avoid repeated JSON parsing.
+
+   Shape:
+     { playerName, pong: {…}, ttt: {…}, bingo: {…}, snake: {…}, invaders: {…} }
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+const ARCADE_STORAGE_KEY = "arcadeData";
+let _arcadeCache = null;
+
+/** Return a blank profile with zeroed stats. */
 function getDefaultArcadeData() {
     return {
         playerName: "PLAYER",
@@ -72,12 +122,14 @@ function getDefaultArcadeData() {
     };
 }
 
+/** Load arcade data from localStorage (cached after first call). */
 function loadArcadeData() {
+    if (_arcadeCache) return _arcadeCache;
     try {
         const saved = localStorage.getItem(ARCADE_STORAGE_KEY);
         if (saved) {
             const p = JSON.parse(saved);
-            return {
+            _arcadeCache = {
                 playerName: p.playerName || "PLAYER",
                 pong: {
                     playerWins: (p.pong && p.pong.playerWins) || 0,
@@ -105,17 +157,25 @@ function loadArcadeData() {
                     lastScore:   (p.invaders && p.invaders.lastScore) || 0
                 }
             };
+            return _arcadeCache;
         }
     } catch (e) {
         // ignore corrupt data
     }
-    return getDefaultArcadeData();
+    _arcadeCache = getDefaultArcadeData();
+    return _arcadeCache;
 }
 
+/** Write arcade data to localStorage and update the in-memory cache. */
 function saveArcadeData(data) {
+    _arcadeCache = data;
     localStorage.setItem(ARCADE_STORAGE_KEY, JSON.stringify(data));
 }
 
+/**
+ * Record the outcome of a versus match.
+ * @param {string} gameType — key in arcadeData (e.g. "pong", "ttt", "bingo")
+ */
 function recordMatchResult(gameType) {
     const data = loadArcadeData();
     const winner = scores.a > scores.b ? "player" : "cpu";
@@ -135,64 +195,84 @@ function recordMatchResult(gameType) {
     saveArcadeData(data);
 }
 
+/** Get the current player name. */
 function getPlayerName() {
     return loadArcadeData().playerName;
 }
 
+/** Update the player name and persist. */
 function setPlayerName(name) {
     const data = loadArcadeData();
     data.playerName = name;
     saveArcadeData(data);
 }
 
+/** Wipe all arcade data (stats, name) and clear cache. */
 function resetArcadeData() {
+    _arcadeCache = null;
     localStorage.removeItem(ARCADE_STORAGE_KEY);
 }
 
-// ========== SCREEN REGISTRY ==========
-// Adding a new screen? Just add one line here.
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   3. SCREEN REGISTRY
+   ────────────────────────────────────────────────────────────────────────────
+   Declarative map of every screen in the app.
+   Each entry wires up:
+     • init          — function name called when entering the screen
+     • keyHandler    — function name that receives keydown events
+     • keyUpHandler  — (optional) function name for keyup events
+     • globalEsc     — if true, ESC returns to the menu
+
+   To add a new screen: just add one line here.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
 const SCREENS = {
-    "screen-boot":     { keyHandler: "handleBootKey" },
-    "screen-menu":     { init: "initMenu",        keyHandler: "handleMenuKey" },
+    "screen-boot":     { init: "initBoot",         keyHandler: "handleBootKey" },
+    "screen-menu":     { init: "initMenu",         keyHandler: "handleMenuKey" },
     "screen-scores":   { init: "initScoreboard",   keyHandler: "handleScoresKey" },
-    "screen-pong":     { init: "initPong",         keyHandler: "handlePongKey", keyUpHandler: "handlePongKeyUp", showHud: true, globalEsc: true },
-    "screen-ttt":      { init: "initTicTacToe",    keyHandler: "handleTTTKey",    showHud: true, globalEsc: true },
-    "screen-bingo":    { init: "initBingo",        keyHandler: "handleBingoKey",  showHud: true, globalEsc: true },
-    "screen-snake":    { init: "initSnake",        keyHandler: "handleSnakeKey",  globalEsc: true },
-    "screen-invaders": { init: "initInvaders",     keyHandler: "handleInvadersKey", keyUpHandler: "handleInvadersKeyUp", globalEsc: true },
+    "screen-pong":     { init: "initPong",         keyHandler: "handlePongKey",      keyUpHandler: "handlePongKeyUp",      globalEsc: true },
+    "screen-ttt":      { init: "initTicTacToe",    keyHandler: "handleTTTKey",       globalEsc: true },
+    "screen-bingo":    { init: "initBingo",        keyHandler: "handleBingoKey",     globalEsc: true },
+    "screen-snake":    { init: "initSnake",        keyHandler: "handleSnakeKey",     globalEsc: true },
+    "screen-invaders": { init: "initInvaders",     keyHandler: "handleInvadersKey",  keyUpHandler: "handleInvadersKeyUp",  globalEsc: true },
     "screen-keeper":   { init: "initKeeper",       keyHandler: "handleKeeperKey" },
-    "screen-magic8":   { init: "initMagic8",       keyHandler: "handleMagic8Key", globalEsc: true }
+    "screen-magic8":   { init: "initMagic8",       keyHandler: "handleMagic8Key",    globalEsc: true },
+    "screen-timetraveler": { init: "initTimeTraveler", keyHandler: "handleTimeTravelerKey", globalEsc: true }
 };
 
-// ========== SCREEN MANAGER ==========
-let currentScreen = "screen-boot";
-let activeGame = null;
 
+/* ═══════════════════════════════════════════════════════════════════════════
+   4. SCREEN MANAGER
+   ────────────────────────────────────────────────────────────────────────────
+   Handles transitions: hides old screen → shows new screen → calls init.
+   If the previous screen returned a cleanup function, it is called first.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+let currentScreen = "screen-boot";
+let activeGame = null;   // cleanup function for the currently active game
+
+/**
+ * Transition to a new screen.
+ * @param {string} screenId — DOM id of the target screen (e.g. "screen-pong")
+ */
 function showScreen(screenId) {
+    // Run cleanup for the previous screen (stops timers, animation frames, etc.)
     if (activeGame) {
         activeGame();
         activeGame = null;
     }
 
+    // Toggle visibility
     document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
     const target = document.getElementById(screenId);
     if (target) target.classList.add("active");
     currentScreen = screenId;
 
     const config = SCREENS[screenId];
-    const hud = document.getElementById("score-hud");
-    if (config && config.showHud) {
-        hud.classList.remove("hidden");
-    } else {
-        hud.classList.add("hidden");
-    }
 
-    // Global ESC hint on all screens
-    const escHint = document.getElementById("global-esc-hint");
-    if (escHint) {
-        escHint.textContent = screenId === "screen-boot" ? "ESC to skip" : "ESC to go back";
-    }
 
+    // Call the screen's init function; if it returns a cleanup fn, store it
     if (config && config.init) {
         const fn = window[config.init];
         if (typeof fn === "function") {
@@ -202,11 +282,19 @@ function showScreen(screenId) {
     }
 }
 
-// ========== GLOBAL KEY HANDLERS ==========
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   5. GLOBAL KEY DISPATCHER
+   ────────────────────────────────────────────────────────────────────────────
+   Single keydown/keyup listener that delegates to the active screen's handler.
+   ESC / Q is intercepted globally for back-navigation.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
 document.addEventListener("keydown", function (e) {
     const config = SCREENS[currentScreen];
     if (!config) return;
 
+    // Global back-navigation (ESC or Q)
     if (e.key === "Escape" || e.key === "q" || e.key === "Q") {
         if (currentScreen === "screen-menu") {
             showScreen("screen-boot");
@@ -218,6 +306,7 @@ document.addEventListener("keydown", function (e) {
         }
     }
 
+    // Delegate to the screen's keydown handler
     if (config.keyHandler) {
         const fn = window[config.keyHandler];
         if (typeof fn === "function") fn(e);
@@ -232,5 +321,9 @@ document.addEventListener("keyup", function (e) {
     }
 });
 
-// ========== INIT ==========
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   STARTUP — Load persisted scores, then boot.js takes over
+   ═══════════════════════════════════════════════════════════════════════════ */
+
 load();
