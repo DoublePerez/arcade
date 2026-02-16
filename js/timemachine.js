@@ -60,6 +60,7 @@ const TM_STATUS_MESSAGES = [
    ═══════════════════════════════════════════════════════════════════════════ */
 
 function initTimeMachine() {
+    console.log("initTimeMachine called, tmGrid:", tmGrid, "tm-arena:", document.getElementById("tm-arena"));
     tm.phase = "intro";
     tm.running = true;
     tm.blinkOn = true;
@@ -87,6 +88,7 @@ function initTimeMachine() {
    ═══════════════════════════════════════════════════════════════════════════ */
 
 function renderTM() {
+    console.log("renderTM called, phase:", tm.phase);
     var g = tmGrid;
     g.clear();
 
