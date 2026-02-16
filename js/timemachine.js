@@ -60,19 +60,23 @@ const TM_STATUS_MESSAGES = [
    ═══════════════════════════════════════════════════════════════════════════ */
 
 function initTimeMachine() {
-    console.log("initTimeMachine called, tmGrid:", tmGrid, "tm-arena:", document.getElementById("tm-arena"));
-    tm.phase = "intro";
-    tm.running = true;
-    tm.blinkOn = true;
-    tm.statusLines = [];
-    tm.barProgress = 0;
+    try {
+        tm.phase = "intro";
+        tm.running = true;
+        tm.blinkOn = true;
+        tm.statusLines = [];
+        tm.barProgress = 0;
 
-    tm.blinkTimer = setInterval(function () {
-        tm.blinkOn = !tm.blinkOn;
+        tm.blinkTimer = setInterval(function () {
+            tm.blinkOn = !tm.blinkOn;
+            renderTM();
+        }, 500);
+
         renderTM();
-    }, 500);
-
-    renderTM();
+    } catch (err) {
+        var el = document.getElementById("tm-arena");
+        if (el) el.textContent = "ERROR: " + err.message;
+    }
 
     return function stopTimeMachine() {
         tm.running = false;
@@ -88,7 +92,6 @@ function initTimeMachine() {
    ═══════════════════════════════════════════════════════════════════════════ */
 
 function renderTM() {
-    console.log("renderTM called, phase:", tm.phase);
     var g = tmGrid;
     g.clear();
 
