@@ -414,7 +414,7 @@ function renderPong() {
         const shortName = pName.length > 8 ? pName.substring(0, 8) : pName;
         g.borderText(" " + shortName + " " + sa + " - " + sb + " CPU ", 0);
     }
-    g.borderText(" WASD: MOVE   P: PAUSE   ESC: MENU ", PONG_H - 1);
+    g.borderText(" WASD: MOVE   P: PAUSE   M: MUTE   ESC: MENU ", PONG_H - 1);
 
     // ── Phase overlays ───────────────────────────────────────
     if (pong.phase === "countdown") {

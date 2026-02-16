@@ -110,6 +110,7 @@ function buildMenuText() {
     // ── Footer ───────────────────────────────────────────────
     lines.push("  +" + "-".repeat(W) + "+");
     lines.push("  |" + centerInBox("ARROWS browse   ENTER play   ESC back", W) + "|");
+    lines.push("  |" + centerInBox("M: MUTE SOUNDS", W) + "|");
     lines.push("  +" + "=".repeat(W) + "+");
 
     return lines.join("\n");

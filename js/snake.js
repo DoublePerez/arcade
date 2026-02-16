@@ -266,7 +266,7 @@ function renderSnake() {
     }
 
     // Controls in bottom border
-    g.borderText(" WASD: STEER   P: PAUSE   ESC: MENU ", SNAKE_H - 1);
+    g.borderText(" WASD: STEER   P: PAUSE   M: MUTE   ESC: MENU ", SNAKE_H - 1);
 
     // ── Game elements (food + snake body) ────────────────────
     const showField = (snk.phase === "playing" || snk.phase === "countdown" || snk.phase === "gameover");

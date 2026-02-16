@@ -543,7 +543,7 @@ function renderInvaders() {
     const midRow = Math.floor(INV_H / 2);
 
     // Controls in bottom border
-    g.borderText(" WASD: MOVE   SPACE: FIRE   P: PAUSE   ESC: MENU ", INV_H - 1);
+    g.borderText(" WASD  SPACE: FIRE  P: PAUSE  M: MUTE  ESC: MENU ", INV_H - 1);
 
     if (inv.phase === "countdown") {
         g.textInner("WAVE " + inv.wave, midRow - 2);

@@ -348,7 +348,7 @@ function renderTTT() {
     }
 
     // Controls in bottom border
-    g.borderText(" ARROWS/WASD: MOVE   ENTER: PLACE   ESC: MENU ", TTT_H - 1);
+    g.borderText(" WASD: MOVE   ENTER: PLACE   M: MUTE   ESC: MENU ", TTT_H - 1);
 
     // ── Board layout ─────────────────────────────────────────
     const cellW = 7;        // width of each cell in characters
