@@ -98,7 +98,8 @@ const inv = {
 
     // ── Invincibility ──────────────────────────────────────────
     invincible: false,                   // true during post-hit invincibility
-    invincibleTimer: null                // setTimeout handle for invincibility duration
+    invincibleTimer: null,               // setTimeout handle for invincibility duration
+    paused: false                        // pause toggle (P key during "playing" phase)
 };
 
 
@@ -118,6 +119,7 @@ function initInvaders() {
     inv.enemyBullets = [];
     inv.playerX = Math.floor(INV_W / 2);
     inv.invincible = false;
+    inv.paused = false;
     inv.aliens = [];
     inv.alienDir = 1;
     inv.alienOffsetX = 0;
@@ -221,23 +223,25 @@ function invadersLoop(timestamp) {
     if (dt > 50) dt = 50;
     if (dt < 1) dt = 1;
 
-    updateInvadersPlayer(dt);
-    updatePlayerBullet();
+    if (!inv.paused) {
+        updateInvadersPlayer(dt);
+        updatePlayerBullet();
 
-    // Aliens move on a fixed tick interval (not every frame)
-    if (timestamp - inv.alienLastTick >= inv.alienSpeed) {
-        inv.alienLastTick = timestamp;
-        alienTick();
-    }
+        // Aliens move on a fixed tick interval (not every frame)
+        if (timestamp - inv.alienLastTick >= inv.alienSpeed) {
+            inv.alienLastTick = timestamp;
+            alienTick();
+        }
 
-    updateEnemyBullets();
-    checkInvadersCollisions();
-    checkAliensReachedBottom();
+        updateEnemyBullets();
+        checkInvadersCollisions();
+        checkAliensReachedBottom();
 
-    // Wave cleared?
-    if (inv.aliveCount <= 0 && inv.phase === "playing") {
-        invadersWaveCleared();
-        return;
+        // Wave cleared?
+        if (inv.aliveCount <= 0 && inv.phase === "playing") {
+            invadersWaveCleared();
+            return;
+        }
     }
 
     renderInvaders();
@@ -356,6 +360,7 @@ function checkInvadersCollisions() {
                 inv.aliveCount--;
                 inv.score += a.points;
                 inv.bullet = null;
+                sfx(440, 80);
                 // Remaining aliens speed up as their numbers thin
                 inv.alienSpeed = Math.max(100, inv.alienBaseSpeed - (inv.totalAliens - inv.aliveCount) * 15);
                 scores.a = inv.score;
@@ -383,6 +388,7 @@ function checkInvadersCollisions() {
 function playerHit() {
     inv.lives--;
     scores.b = inv.lives;
+    sfx(180, 200);
     updateDisplay();
 
     if (inv.lives <= 0) {
@@ -416,6 +422,7 @@ function checkAliensReachedBottom() {
 /** All aliens destroyed: show wave clear message, then start next wave. */
 function invadersWaveCleared() {
     inv.phase = "wave_clear";
+    sfx(660, 200);
     renderInvaders();
 
     inv.waveTimer = setTimeout(function () {
@@ -430,6 +437,7 @@ function invadersWaveCleared() {
 /** End the game: stop animation, save stats, show results. */
 function invadersGameOver() {
     inv.phase = "gameover";
+    sfx(180, 300);
     if (inv.animId) { cancelAnimationFrame(inv.animId); inv.animId = null; }
 
     const data = loadArcadeData();
@@ -449,6 +457,7 @@ function invadersGameOver() {
 function firePlayerBullet() {
     if (inv.bullet) return;
     inv.bullet = { x: Math.round(inv.playerX), y: PLAYER_ROW - 1 };
+    sfx(880, 30);
 }
 
 
@@ -534,12 +543,20 @@ function renderInvaders() {
     const midRow = Math.floor(INV_H / 2);
 
     // Controls in bottom border
-    g.borderText(" ARROWS/WASD: MOVE   SPACE: FIRE   ESC: MENU ", INV_H - 1);
+    g.borderText(" WASD: MOVE   SPACE: FIRE   P: PAUSE   ESC: MENU ", INV_H - 1);
 
     if (inv.phase === "countdown") {
         g.textInner("WAVE " + inv.wave, midRow - 2);
         g.textInner("GET READY!", midRow);
         g.textInner(String(inv.countdown), midRow + 2);
+    }
+
+    if (inv.paused && inv.phase === "playing") {
+        g.textInner("P  A  U  S  E  D", midRow - 1);
+        var resumeLine = "[P] RESUME";
+        var resumeCol = Math.floor((INV_W - resumeLine.length) / 2);
+        g.textGreen("[P]", midRow + 1, resumeCol);
+        g.textInner(" RESUME", midRow + 1, resumeCol + 3);
     }
 
     if (inv.phase === "wave_clear") {
@@ -589,8 +606,19 @@ function handleInvadersKey(e) {
     // Track held keys for continuous movement
     inv.keysDown[e.key] = true;
 
-    // Fire bullet
-    if (inv.phase === "playing" && e.key === " ") {
+    // Pause toggle (P during "playing" phase only)
+    if ((e.key === "p" || e.key === "P") && inv.phase === "playing") {
+        inv.paused = !inv.paused;
+        if (!inv.paused) {
+            inv.lastTime = performance.now();
+            inv.alienLastTick = performance.now();
+        }
+        renderInvaders();
+        return;
+    }
+
+    // Fire bullet (not while paused)
+    if (inv.phase === "playing" && !inv.paused && e.key === " ") {
         firePlayerBullet();
     }
 

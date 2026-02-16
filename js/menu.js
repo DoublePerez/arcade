@@ -158,12 +158,14 @@ function handleMenuKey(e) {
     if (e.key === "ArrowUp" || e.key === "w" || e.key === "W") {
         e.preventDefault();
         menuCursor = (menuCursor - 1 + MENU_ITEMS.length) % MENU_ITEMS.length;
+        sfx(330, 30);
         renderMenu();
         return;
     }
     if (e.key === "ArrowDown" || e.key === "s" || e.key === "S") {
         e.preventDefault();
         menuCursor = (menuCursor + 1) % MENU_ITEMS.length;
+        sfx(330, 30);
         renderMenu();
         return;
     }

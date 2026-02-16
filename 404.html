@@ -1,0 +1,84 @@
+<!--
+  ============================================================================
+   404.HTML — Retro Terminal Error Page
+  ============================================================================
+   Shown when a user navigates to a non-existent page.
+   Uses the same CRT/retro styling as the main arcade terminal.
+  ============================================================================
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#09090b">
+    <title>404 — PAGE NOT FOUND</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        body {
+            justify-content: center;
+            min-height: 100vh;
+            text-align: center;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        .error-box {
+            font-family: 'Press Start 2P', monospace;
+            font-size: clamp(0.35rem, 1.2vw, 0.65rem);
+            color: #e0e0e0;
+            line-height: 1.8;
+            white-space: pre;
+            text-shadow: 0 0 4px rgba(224, 224, 224, 0.3);
+        }
+        .error-big {
+            font-size: clamp(1rem, 4vw, 2.5rem);
+            color: #ffffff;
+            text-shadow: 0 0 12px rgba(255, 255, 255, 0.4);
+            letter-spacing: 0.3em;
+            margin-bottom: 24px;
+        }
+        .error-face {
+            font-size: clamp(0.5rem, 2vw, 1.2rem);
+            color: #555555;
+            margin: 16px 0;
+        }
+        .error-link {
+            display: inline-block;
+            margin-top: 32px;
+            font-family: 'Press Start 2P', monospace;
+            font-size: clamp(0.35rem, 1.2vw, 0.65rem);
+            color: #00ff00;
+            text-decoration: none;
+            text-shadow: 0 0 6px rgba(0, 255, 0, 0.5);
+            padding: 8px 16px;
+            border: 1px solid #00ff00;
+        }
+        .error-link:hover {
+            background: rgba(0, 255, 0, 0.08);
+        }
+    </style>
+</head>
+<body>
+    <div class="error-box">
++==========================================+
+|                                          |
+    <div class="error-big">4 0 4</div>
+    <div class="error-face">:-[</div>
+
+  ERROR: FILE NOT FOUND
+
+  The requested path does not exist
+  on this terminal.
+
+  Check the address or return to
+  the main arcade.
+
+|                                          |
++==========================================+
+
+  C:\ARCAD3> FILE NOT FOUND_
+
+    <a class="error-link" href="index.html">[ENTER] RETURN TO ARCADE</a>
+    </div>
+</body>
+</html>

@@ -98,6 +98,36 @@ function resetAll() {
 
 
 /* ═══════════════════════════════════════════════════════════════════════════
+   1.5. SOUND SYSTEM
+   ────────────────────────────────────────────────────────────────────────────
+   Retro sound effects via Web Audio API oscillators. No audio files needed.
+   AudioContext is lazy-initialized on first call (browser autoplay policy).
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+let _audioCtx = null;
+
+/** Play a retro beep. freq in Hz, duration in ms, type defaults to "square". */
+function sfx(freq, duration, type) {
+    if (!_audioCtx) {
+        try { _audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
+        catch (e) { return; }
+    }
+    try {
+        const osc = _audioCtx.createOscillator();
+        const gain = _audioCtx.createGain();
+        osc.type = type || "square";
+        osc.frequency.value = freq;
+        gain.gain.value = 0.12;
+        osc.connect(gain);
+        gain.connect(_audioCtx.destination);
+        const t = _audioCtx.currentTime;
+        osc.start(t);
+        osc.stop(t + duration / 1000);
+    } catch (e) {}
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════════════
    2. ARCADE DATA  — Player Profile & Match History
    ────────────────────────────────────────────────────────────────────────────
    Stores per-game win/loss records and high scores.

@@ -207,6 +207,7 @@ function tttPlaceMove(cell) {
     if (ttt.board[cell] !== 0 || ttt.phase !== "playing") return;
 
     ttt.board[cell] = ttt.turn;
+    sfx(440, 40);
 
     const result = tttCheckWinner(ttt.board);
     if (result !== null) {
@@ -236,6 +237,7 @@ function tttPlaceMove(cell) {
 function endTTTRound(result) {
     if (ttt.cpuTimer) { clearTimeout(ttt.cpuTimer); ttt.cpuTimer = null; }
     ttt.phase = "round_end";
+    sfx(880, 200);
 
     if (result.winner === 1) {
         ttt.message = "** YOU WIN THIS ROUND! **";

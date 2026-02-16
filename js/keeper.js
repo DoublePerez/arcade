@@ -43,12 +43,28 @@ const KEEPER_H = 30;
 
 const keeperGrid = ArcadeGrid(KEEPER_W, KEEPER_H);
 
+const KEEPER_HISTORY_KEY = "keeperHistory";
+
 const keeper = {
     phase: "intro",      // "intro" | "score"
     selected: "a",       // currently selected team: "a" (player) or "b" (cpu)
     history: [],         // array of "a" or "b" — tracks who scored each point
     totalPoints: 0       // total points scored across both teams
 };
+
+/** Load keeper history from localStorage. Returns array or null if invalid. */
+function loadKeeperHistory() {
+    try {
+        var saved = localStorage.getItem(KEEPER_HISTORY_KEY);
+        if (saved) return JSON.parse(saved);
+    } catch (e) {}
+    return null;
+}
+
+/** Save keeper history to localStorage. */
+function saveKeeperHistory() {
+    localStorage.setItem(KEEPER_HISTORY_KEY, JSON.stringify(keeper.history));
+}
 
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -59,12 +75,31 @@ const keeper = {
 function initKeeper() {
     keeper.phase = "intro";
     keeper.selected = "a";
-    keeper.history = [];
     keeper.totalPoints = scores.a + scores.b;
 
-    // Rebuild history from existing scores (fill with proportional a/b entries)
-    for (var i = 0; i < scores.a; i++) keeper.history.push("a");
-    for (var j = 0; j < scores.b; j++) keeper.history.push("b");
+    // Try to load persisted history; validate counts match current scores
+    var saved = loadKeeperHistory();
+    if (saved && Array.isArray(saved)) {
+        var countA = 0, countB = 0;
+        for (var k = 0; k < saved.length; k++) {
+            if (saved[k] === "a") countA++;
+            else if (saved[k] === "b") countB++;
+        }
+        if (countA === scores.a && countB === scores.b) {
+            keeper.history = saved;
+        } else {
+            // Scores were modified externally — rebuild as fallback
+            keeper.history = [];
+            for (var i = 0; i < scores.a; i++) keeper.history.push("a");
+            for (var j = 0; j < scores.b; j++) keeper.history.push("b");
+            saveKeeperHistory();
+        }
+    } else {
+        keeper.history = [];
+        for (var i2 = 0; i2 < scores.a; i2++) keeper.history.push("a");
+        for (var j2 = 0; j2 < scores.b; j2++) keeper.history.push("b");
+        saveKeeperHistory();
+    }
 
     renderKeeper();
     return function stopKeeper() {};
@@ -319,6 +354,7 @@ function handleKeeperKey(e) {
             increment(team);
             keeper.history.push(team);
             keeper.totalPoints++;
+            saveKeeperHistory();
             break;
         case "ArrowDown": case "s": case "S":
             if (scores[team] > 0) {
@@ -331,6 +367,7 @@ function handleKeeperKey(e) {
                     }
                 }
                 keeper.totalPoints = Math.max(0, keeper.totalPoints - 1);
+                saveKeeperHistory();
             }
             break;
         case "q": case "Q":
@@ -338,11 +375,13 @@ function handleKeeperKey(e) {
             // Remove all entries for this team from history
             keeper.history = keeper.history.filter(function (h) { return h !== team; });
             keeper.totalPoints = scores.a + scores.b;
+            saveKeeperHistory();
             break;
         case "r": case "R":
             resetAll();
             keeper.history = [];
             keeper.totalPoints = 0;
+            saveKeeperHistory();
             break;
         case "Escape":
             showScreen("screen-menu"); return;

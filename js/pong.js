@@ -73,7 +73,8 @@ const pong = {
     keysDown: {},          // currently held keys (for smooth movement)
     accumulator: 0,        // physics timestep accumulator (ms)
     hitCount: 0,           // paddle hits this rally (drives speed increase)
-    lastScorer: ""         // "player" or "cpu" — who scored last
+    lastScorer: "",        // "player" or "cpu" — who scored last
+    paused: false          // pause toggle (P key during "playing" phase)
 };
 
 
@@ -91,6 +92,7 @@ function initPong() {
     pong.phase = "difficulty";
     pong.hitCount = 0;
     pong.lastScorer = "";
+    pong.paused = false;
     resetBall();
     renderPong();
 
@@ -177,7 +179,7 @@ function pongLoop(timestamp) {
     pong.lastTime = timestamp;
     if (elapsed > 100) elapsed = 100;   // cap to prevent spiral-of-death
 
-    if (pong.phase === "playing") {
+    if (pong.phase === "playing" && !pong.paused) {
         pong.accumulator += elapsed;
         while (pong.accumulator >= PONG_STEP) {
             updatePongPlayer(PONG_STEP);
@@ -249,10 +251,12 @@ function updatePongBall(dt) {
     if (pong.ballY <= 1) {
         pong.ballY = 1;
         pong.ballDY = Math.abs(pong.ballDY);
+        sfx(330, 30);
     }
     if (pong.ballY >= PONG_H - 2) {
         pong.ballY = PONG_H - 2;
         pong.ballDY = -Math.abs(pong.ballDY);
+        sfx(330, 30);
     }
 
     const half = Math.floor(PADDLE_H / 2);
@@ -265,6 +269,7 @@ function updatePongBall(dt) {
             pong.ballDX = Math.abs(pong.ballDX);
             pong.ballDY = Math.max(-1.2, Math.min(1.2, ((pong.ballY - pong.playerY) / half) * 0.8));
             pong.hitCount++;
+            sfx(440, 50);
         }
     }
 
@@ -276,12 +281,13 @@ function updatePongBall(dt) {
             pong.ballDX = -Math.abs(pong.ballDX);
             pong.ballDY = Math.max(-1.2, Math.min(1.2, ((pong.ballY - pong.aiY) / half) * 0.8));
             pong.hitCount++;
+            sfx(440, 50);
         }
     }
 
     // ── Scoring — ball passed a paddle ───────────────────────
-    if (pong.ballX <= 0) { increment("b"); pong.lastScorer = "cpu"; pongPointScored(); }
-    if (pong.ballX >= PONG_W - 1) { increment("a"); pong.lastScorer = "player"; pongPointScored(); }
+    if (pong.ballX <= 0) { increment("b"); pong.lastScorer = "cpu"; sfx(880, 100); pongPointScored(); }
+    if (pong.ballX >= PONG_W - 1) { increment("a"); pong.lastScorer = "player"; sfx(880, 100); pongPointScored(); }
 }
 
 
@@ -294,6 +300,7 @@ function pongPointScored() {
     if (scores.a >= WIN_SCORE || scores.b >= WIN_SCORE) {
         pong.phase = "gameover";
         recordMatchResult("pong");
+        sfx(220, 300);
         if (pong.animId) cancelAnimationFrame(pong.animId);
         renderPong();
         return;
@@ -407,7 +414,7 @@ function renderPong() {
         const shortName = pName.length > 8 ? pName.substring(0, 8) : pName;
         g.borderText(" " + shortName + " " + sa + " - " + sb + " CPU ", 0);
     }
-    g.borderText(" ARROWS/WASD: MOVE   ESC: MENU ", PONG_H - 1);
+    g.borderText(" WASD: MOVE   P: PAUSE   ESC: MENU ", PONG_H - 1);
 
     // ── Phase overlays ───────────────────────────────────────
     if (pong.phase === "countdown") {
@@ -418,6 +425,14 @@ function renderPong() {
     if (pong.phase === "point") {
         const scorer = pong.lastScorer === "player" ? getPlayerName() : "CPU";
         g.textInner(scorer + " SCORES!", midRow);
+    }
+
+    if (pong.paused && pong.phase === "playing") {
+        g.textInner("P  A  U  S  E  D", midRow - 1);
+        var resumeLine = "[P] RESUME";
+        var resumeCol = Math.floor((PONG_W - resumeLine.length) / 2);
+        g.textGreen("[P]", midRow + 1, resumeCol);
+        g.textInner(" RESUME", midRow + 1, resumeCol + 3);
     }
 
     if (pong.phase === "gameover") {
@@ -449,6 +464,17 @@ function handlePongKey(e) {
     }
 
     pong.keysDown[e.key] = true;
+
+    // ── Pause toggle (P during "playing" phase only) ─────────
+    if ((e.key === "p" || e.key === "P") && pong.phase === "playing") {
+        pong.paused = !pong.paused;
+        if (!pong.paused) {
+            pong.lastTime = performance.now();
+            pong.accumulator = 0;
+        }
+        renderPong();
+        return;
+    }
 
     // ── Difficulty select ────────────────────────────────────
     if (pong.phase === "difficulty") {

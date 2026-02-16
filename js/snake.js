@@ -60,7 +60,8 @@ const snk = {
     phase: "countdown",              // "intro" | "countdown" | "playing" | "gameover"
     countdown: 3,                    // countdown value
     countdownTimer: null,            // setInterval handle for countdown
-    moveTimer: null                  // setTimeout handle for snake movement
+    moveTimer: null,                 // setTimeout handle for snake movement
+    paused: false                    // pause toggle (P key during "playing" phase)
 };
 
 
@@ -74,6 +75,7 @@ function initSnake() {
     snk.score = 0;
     snk.phase = "intro";
     snk.speed = SNAKE_INITIAL_SPEED;
+    snk.paused = false;
 
     const data = loadArcadeData();
     snk.bestScore = (data.snake && data.snake.bestScore) || 0;
@@ -152,13 +154,13 @@ function startSnakeCountdown() {
 
 /** Schedule the next snake movement tick. */
 function scheduleSnakeMove() {
-    if (!snk.running || snk.phase !== "playing") return;
+    if (!snk.running || snk.phase !== "playing" || snk.paused) return;
     snk.moveTimer = setTimeout(snakeTick, snk.speed);
 }
 
 /** One tick of snake movement: move head, check collisions, eat food. */
 function snakeTick() {
-    if (!snk.running || snk.phase !== "playing") return;
+    if (!snk.running || snk.phase !== "playing" || snk.paused) return;
 
     // Apply buffered direction
     snk.dir.x = snk.nextDir.x;
@@ -187,6 +189,7 @@ function snakeTick() {
     if (newHead.x === snk.food.x && newHead.y === snk.food.y) {
         snk.score++;
         snk.speed = Math.max(SNAKE_MIN_SPEED, snk.speed - SNAKE_SPEED_DECREASE);
+        sfx(660, 50);
         spawnSnakeFood();
     } else {
         snk.body.pop();   // remove tail (no growth)
@@ -204,6 +207,7 @@ function snakeTick() {
 /** End the game and persist stats. */
 function snakeGameOver() {
     snk.phase = "gameover";
+    sfx(180, 300);
 
     const data = loadArcadeData();
     if (!data.snake) data.snake = { bestScore: 0, gamesPlayed: 0, lastScore: 0 };
@@ -262,7 +266,7 @@ function renderSnake() {
     }
 
     // Controls in bottom border
-    g.borderText(" ARROWS/WASD: STEER   ESC: MENU ", SNAKE_H - 1);
+    g.borderText(" WASD: STEER   P: PAUSE   ESC: MENU ", SNAKE_H - 1);
 
     // ── Game elements (food + snake body) ────────────────────
     const showField = (snk.phase === "playing" || snk.phase === "countdown" || snk.phase === "gameover");
@@ -283,6 +287,14 @@ function renderSnake() {
     if (snk.phase === "countdown") {
         g.textInner("GET READY!", midRow - 1);
         g.textInner(String(snk.countdown), midRow + 1);
+    }
+
+    if (snk.paused && snk.phase === "playing") {
+        g.textInner("P  A  U  S  E  D", midRow - 1);
+        var resumeLine = "[P] RESUME";
+        var resumeCol = Math.floor((SNAKE_W - resumeLine.length) / 2);
+        g.textGreen("[P]", midRow + 1, resumeCol);
+        g.textInner(" RESUME", midRow + 1, resumeCol + 3);
     }
 
     if (snk.phase === "gameover") {
@@ -316,6 +328,18 @@ function handleSnakeKey(e) {
     // Intro → start countdown
     if (snk.phase === "intro" && (e.key === "Enter" || e.key === " ")) {
         startSnakeCountdown();
+        return;
+    }
+
+    // Pause toggle (P during "playing" phase only)
+    if ((e.key === "p" || e.key === "P") && snk.phase === "playing") {
+        snk.paused = !snk.paused;
+        if (snk.paused) {
+            if (snk.moveTimer) clearTimeout(snk.moveTimer);
+        } else {
+            scheduleSnakeMove();
+        }
+        renderSnake();
         return;
     }
 
