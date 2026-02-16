@@ -109,8 +109,11 @@ function buildMenuText() {
 
     // ── Footer ───────────────────────────────────────────────
     lines.push("  +" + "-".repeat(W) + "+");
-    lines.push("  |" + centerInBox("ARROWS browse   ENTER play   ESC back", W) + "|");
-    lines.push("  |" + centerInBox("M: MUTE SOUNDS", W) + "|");
+    lines.push("  |" + centerInBox("ARROWS browse   ESC back", W) + "|");
+    lines.push("  +" + "=".repeat(W) + "+");
+
+    // ── Action cell (separate cell below) ──────────────────
+    lines.push("  |" + centerInBox("ENTER: START   M: MUTE SOUNDS", W) + "|");
     lines.push("  +" + "=".repeat(W) + "+");
 
     return lines.join("\n");
