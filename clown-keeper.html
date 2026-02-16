@@ -170,8 +170,8 @@
             top: 20px;
             left: 24px;
             font-family: var(--font);
-            font-size: 12px;
-            font-weight: 700;
+            font-size: 10px;
+            font-weight: 400;
             letter-spacing: 0.08em;
             color: var(--muted);
             text-decoration: none;
@@ -201,16 +201,16 @@
             padding: 16px 0;
         }
 
-        /* Team name label */
+        /* Team name label — normal weight, bold only when selected */
         .team-label {
-            font-size: 11px;
-            font-weight: 700;
+            font-size: 10px;
+            font-weight: 400;
             letter-spacing: 0.22em;
             color: var(--muted);
             transition: color 0.15s;
         }
 
-        .team.selected .team-label { color: var(--white); }
+        .team.selected .team-label { color: var(--white); font-weight: 700; }
 
         /* Score digit images (pixel-art PNGs) */
         .digits {
@@ -237,10 +237,10 @@
         .controls { display: flex; gap: 6px; margin-top: 10px; }
 
         .controls button {
-            width: 50px;
-            height: 40px;
+            width: 36px;
+            height: 36px;
             font-family: var(--font);
-            font-size: 16px;
+            font-size: 15px;
             font-weight: 400;
             color: var(--muted);
             background: transparent;
@@ -273,9 +273,9 @@
 
         /* VS divider between the two teams */
         .divider {
-            font-size: 12px;
-            font-weight: 700;
-            color: var(--text);
+            font-size: 9px;
+            font-weight: 400;
+            color: var(--muted);
             padding: 0 24px;
             letter-spacing: 0.18em;
             align-self: center;
@@ -294,8 +294,8 @@
             color: var(--muted);
             text-align: center;
             padding: 14px 0;
-            border-top: 1px solid var(--dim);
-            border-bottom: 1px solid var(--dim);
+            border-top: 1px solid var(--muted);
+            border-bottom: 1px solid var(--muted);
         }
 
         .lead .who { color: var(--text); }
@@ -330,6 +330,28 @@
         .dot.a { background: #c0c0c0; }
         .dot.b { background: var(--muted); }
 
+        /* Reset button — hidden on desktop, shown on touch/mobile */
+        .reset-btn {
+            display: none;
+            width: 100%;
+            height: 36px;
+            font-family: var(--font);
+            font-size: 9px;
+            font-weight: 400;
+            letter-spacing: 0.18em;
+            color: var(--muted);
+            background: transparent;
+            border: 1px solid var(--dim);
+            cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
+            outline: none;
+        }
+
+        .reset-btn:active {
+            color: var(--bright);
+            border-color: var(--bright);
+        }
+
 
         /* ══════════════════════════════════════════════════════════
            MUTE BUTTON — Fixed top-right (before info button)
@@ -339,9 +361,9 @@
         .mute-btn {
             position: fixed;
             top: 20px;
-            right: 60px;
-            width: 34px;
-            height: 30px;
+            right: 58px;
+            width: 26px;
+            height: 26px;
             background: transparent;
             border: 1px solid var(--muted);
             color: var(--muted);
@@ -380,13 +402,13 @@
         }
 
         .info-btn {
-            width: 30px;
-            height: 30px;
+            width: 26px;
+            height: 26px;
             background: transparent;
             border: 1px solid var(--muted);
             color: var(--muted);
             font-family: var(--font);
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 400;
             cursor: pointer;
             display: flex;
@@ -406,17 +428,17 @@
             position: absolute;
             top: 32px;
             right: 0;
-            width: 230px;
+            width: 210px;
             background: rgba(20, 20, 20, 0.95);
             border: 1px solid var(--glass-border);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
-            padding: 16px 18px;
-            font-size: 12px;
+            padding: 14px 16px;
+            font-size: 10px;
             font-weight: 400;
             letter-spacing: 0.06em;
             color: var(--white);
-            line-height: 2.2;
+            line-height: 1.9;
             text-align: left;
             opacity: 0;
             pointer-events: none;
@@ -432,7 +454,7 @@
 
         .tooltip .key   { color: var(--bright); }
         .tooltip .sep   { display: block; height: 1px; background: var(--dim); margin: 10px 0; }
-        .tooltip .desc  { color: var(--muted); line-height: 1.8; }
+        .tooltip .desc  { color: var(--muted); line-height: 1.6; }
 
 
         /* ══════════════════════════════════════════════════════════
@@ -462,34 +484,52 @@
         }
 
         /* Phase 1: Choice dialog */
+        #travel-choice {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
         .travel-question {
-            font-size: 13px;
+            font-size: 14px;
             font-weight: 700;
-            letter-spacing: 0.18em;
+            letter-spacing: 0.22em;
             color: var(--bright);
-            margin-bottom: 14px;
+            margin-bottom: 24px;
             text-align: center;
+        }
+
+        .travel-desc {
+            font-size: 11px;
+            font-weight: 400;
+            letter-spacing: 0.06em;
+            color: var(--muted);
+            text-align: center;
+            line-height: 1.9;
+            margin-bottom: 40px;
+            max-width: 280px;
         }
 
         .travel-options {
             display: flex;
             flex-direction: column;
-            gap: 6px;
-            margin-bottom: 20px;
+            gap: 8px;
+            margin-bottom: 32px;
+            width: 240px;
         }
 
         .travel-opt {
-            width: 240px;
+            width: 100%;
             height: 42px;
             font-family: var(--font);
-            font-size: 11px;
+            font-size: 10px;
             font-weight: 400;
-            letter-spacing: 0.12em;
+            letter-spacing: 0.16em;
             color: var(--muted);
             background: transparent;
             border: 1px solid var(--dim);
             cursor: pointer;
-            transition: all 0.15s;
+            transition: all 0.2s;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -500,28 +540,19 @@
         .travel-opt:hover {
             color: var(--text);
             border-color: var(--muted);
+            background: rgba(255, 255, 255, 0.03);
         }
 
         .travel-opt.selected {
             color: var(--bright);
             border-color: var(--bright);
-        }
-
-        .travel-desc {
-            font-size: 11px;
-            font-weight: 400;
-            letter-spacing: 0.06em;
-            color: var(--muted);
-            text-align: center;
-            line-height: 1.9;
-            margin-bottom: 32px;
-            max-width: 240px;
+            background: rgba(255, 255, 255, 0.04);
         }
 
         .travel-hint {
-            font-size: 11px;
+            font-size: 10px;
             font-weight: 400;
-            letter-spacing: 0.14em;
+            letter-spacing: 0.18em;
             color: var(--dim);
             text-align: center;
         }
@@ -535,34 +566,34 @@
         }
 
         .travel-year {
-            font-size: 36px;
-            font-weight: 400;
-            letter-spacing: 0.12em;
+            font-size: 48px;
+            font-weight: 300;
+            letter-spacing: 0.18em;
+            color: var(--bright);
+            margin-bottom: 28px;
+        }
+
+        .travel-text {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.28em;
             color: var(--bright);
             margin-bottom: 20px;
         }
 
-        .travel-text {
-            font-size: 12px;
-            font-weight: 400;
-            letter-spacing: 0.22em;
-            color: var(--muted);
-            margin-bottom: 16px;
-        }
-
         .travel-sub {
-            font-size: 11px;
+            font-size: 10px;
             font-weight: 400;
-            letter-spacing: 0.06em;
+            letter-spacing: 0.08em;
             color: var(--muted);
-            margin-bottom: 28px;
+            margin-bottom: 40px;
             text-align: center;
-            line-height: 1.9;
+            line-height: 2.0;
             max-width: 260px;
         }
 
         .travel-bar-track {
-            width: 180px;
+            width: 220px;
             height: 1px;
             background: var(--dim);
         }
@@ -579,110 +610,111 @@
         }
 
         .travel-status {
-            font-size: 11px;
+            font-size: 10px;
             font-weight: 400;
-            letter-spacing: 0.14em;
+            letter-spacing: 0.18em;
             color: var(--muted);
-            margin-top: 14px;
+            margin-top: 20px;
         }
 
 
         /* ══════════════════════════════════════════════════════════
-           RESPONSIVE — Mobile breakpoints
+           RESPONSIVE — Tablet breakpoint
            ══════════════════════════════════════════════════════════ */
 
         @media (max-width: 700px) {
             .app {
                 flex-direction: column;
                 align-items: center;
-                gap: 32px;
-                padding: 36px 20px;
+                gap: 24px;
+                padding: 56px 20px 24px;
             }
-            .clown-col img { width: 180px; }
+            .clown-col img { width: 100px; }
+            .keeper-col { gap: 20px; }
+            .title { padding-bottom: 16px; }
+            .title-img { height: 48px; }
             .digits { min-height: 72px; }
             .digits img { height: 72px; }
-            .controls button { width: 46px; height: 34px; font-size: 16px; }
+            .controls button { width: 34px; height: 34px; font-size: 15px; }
+            .team { gap: 20px; cursor: pointer; }
+            .divider { padding: 0 16px; }
             .back { top: 12px; left: 14px; }
+            .mute-btn { top: 12px; right: 48px; width: 36px; height: 36px; }
+            .tooltip-wrap { top: 12px; right: 14px; }
+            .info-btn { width: 36px; height: 36px; }
+            .reset-btn { display: block; }
         }
-
-        @media (max-width: 420px) {
-            .app { padding: 24px 14px; gap: 24px; }
-            .clown-col img { width: 140px; }
-            .digits { min-height: 56px; }
-            .digits img { height: 56px; }
-            .controls button { width: 40px; height: 32px; font-size: 15px; }
-        }
-
 
         /* ══════════════════════════════════════════════════════════
-           MOBILE WALL — "Smartphones didn't exist in 1981"
+           RESPONSIVE — Phone breakpoint
            ══════════════════════════════════════════════════════════ */
 
-        .mobile-wall {
-            position: fixed;
-            inset: 0;
-            z-index: 10000;
-            background: var(--bg);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 24px;
+        @media (max-width: 420px) {
+            .app {
+                padding: 48px 10px 16px;
+                gap: 14px;
+            }
+            .clown-col img { width: 72px; }
+            .keeper-col { gap: 12px; }
+            .title { padding-bottom: 10px; }
+            .title-img { height: 32px; }
+            .team-label { font-size: 9px; letter-spacing: 0.16em; }
+            .digits { min-height: 52px; }
+            .digits img { height: 52px; }
+            .controls { gap: 6px; margin-top: 4px; }
+            .controls button { width: 32px; height: 32px; font-size: 14px; }
+            .team { gap: 14px; padding: 8px 0; }
+            .divider { font-size: 8px; padding: 0 8px; }
+            .lead { font-size: 8px; padding: 10px 0; }
+            .total { font-size: 9px; }
+            .dot { width: 5px; height: 5px; }
+            .dots { gap: 2px; }
+            .travel-question { font-size: 12px; }
+            .travel-options { width: 220px; }
+            .travel-opt { height: 38px; font-size: 9px; }
+            .travel-desc { font-size: 10px; }
+            .travel-year { font-size: 36px; }
+            .travel-text { font-size: 10px; }
+            .travel-sub { font-size: 10px; }
+            .travel-hint { font-size: 9px; }
+            .travel-bar-track { width: 180px; }
         }
 
-        .mobile-wall-box {
-            text-align: center;
-            max-width: 340px;
+        /* ══════════════════════════════════════════════════════════
+           RESPONSIVE — Very small phones (≤ 360px)
+           ══════════════════════════════════════════════════════════ */
+
+        @media (max-width: 360px) {
+            .app { padding: 44px 6px 12px; gap: 10px; }
+            .clown-col img { width: 56px; }
+            .title-img { height: 24px; }
+            .digits { min-height: 40px; }
+            .digits img { height: 40px; }
+            .divider { padding: 0 4px; font-size: 8px; }
+            .controls button { width: 30px; height: 30px; font-size: 13px; }
+            .team { gap: 10px; }
         }
 
-        .mobile-wall-art {
-            font-family: var(--font);
-            font-size: clamp(0.38rem, 2.8vw, 0.65rem);
-            color: var(--white);
-            line-height: 1.6;
-            white-space: pre;
-            margin-bottom: 32px;
-        }
+        /* ══════════════════════════════════════════════════════════
+           RESPONSIVE — Short screens (landscape phone)
+           ══════════════════════════════════════════════════════════ */
 
-        .mobile-wall-text {
-            font-family: var(--font);
-            font-size: clamp(0.5rem, 2.5vw, 0.7rem);
-            color: var(--text);
-            line-height: 2;
-            margin-bottom: 24px;
-        }
-
-        .mobile-wall-sub {
-            font-family: var(--font);
-            font-size: clamp(0.45rem, 2vw, 0.6rem);
-            color: var(--muted);
-            line-height: 1.8;
+        @media (max-height: 600px) and (max-width: 700px) {
+            .clown-col { display: none; }
+            .app { gap: 10px; padding-top: 40px; }
+            .keeper-col { gap: 10px; }
+            .title { padding-bottom: 6px; }
+            .title-img { height: 24px; }
+            .team { gap: 6px; padding: 4px 0; }
+            .digits { min-height: 36px; }
+            .digits img { height: 36px; }
+            .controls { margin-top: 2px; }
+            .controls button { width: 28px; height: 28px; font-size: 12px; }
+            .lead { padding: 6px 0; }
         }
     </style>
 </head>
 <body>
-
-<!-- ════════════════════════════════════════════════════════════════════════════
-     MOBILE DIALOG — Smartphones didn't exist in 1981
-     ════════════════════════════════════════════════════════════════════════════ -->
-<div id="mobile-wall" class="mobile-wall hidden">
-    <div class="mobile-wall-box">
-        <pre class="mobile-wall-art">
-  +============================+
-  |                            |
-  |   S M A R T P H O N E S   |
-  |                            |
-  |    DID NOT EXIST IN 1981   |
-  |                            |
-  +============================+</pre>
-        <p class="mobile-wall-text">
-            This terminal requires a keyboard<br>
-            and a proper CRT monitor.
-        </p>
-        <p class="mobile-wall-sub">
-            Please visit on a desktop computer.
-        </p>
-    </div>
-</div>
 
 
 <!-- ════════════════════════════════════════════════════════════════════════════
@@ -694,12 +726,12 @@
 
 <!-- Mute toggle — speaker icon swaps between unmuted/muted SVGs -->
 <button class="mute-btn" id="mute-btn" onclick="toggleMute()" aria-label="Toggle music">
-    <svg id="icon-unmuted" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <svg id="icon-unmuted" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
         <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
         <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
     </svg>
-    <svg id="icon-muted" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none">
+    <svg id="icon-muted" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none">
         <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
         <line x1="23" y1="9" x2="17" y2="15"/>
         <line x1="17" y1="9" x2="23" y2="15"/>
@@ -734,7 +766,7 @@
     <div id="travel-choice">
         <div class="travel-question">LEAVE CLOWN TOWN?</div>
         <div class="travel-desc">
-            You are 45 days from home.<br>
+            You are 45 years from home.<br>
             The arcade is still back in 1981,<br>
             right where you left it.
         </div>
@@ -783,7 +815,7 @@
 
         <!-- Score display: Team 1  VS  Team 2 -->
         <div class="scores">
-            <div class="team selected" id="team-a">
+            <div class="team selected" id="team-a" onclick="sel='a'; render(); saveState();">
                 <div class="team-label">TEAM 1</div>
                 <div class="digits" id="score-a"></div>
                 <div class="controls">
@@ -792,7 +824,7 @@
                 </div>
             </div>
             <div class="divider">VS</div>
-            <div class="team" id="team-b">
+            <div class="team" id="team-b" onclick="sel='b'; render(); saveState();">
                 <div class="team-label">TEAM 2</div>
                 <div class="digits" id="score-b"></div>
                 <div class="controls">
@@ -810,6 +842,9 @@
             <div class="total" id="total">TOTAL: 0 CLOWNS</div>
             <div class="dots" id="dots"></div>
         </div>
+
+        <!-- Reset button — visible on touch devices only -->
+        <button class="reset-btn" onclick="tryReset()">RESET</button>
 
     </div>
 
@@ -1162,14 +1197,6 @@ document.addEventListener("keydown", function musicInit(e) {
     document.removeEventListener("keydown", musicInit);
 });
 
-/* ── Mobile detection — show wall on phones/tablets ─── */
-(function () {
-    var isMobile = /Android|iPhone|iPad|iPod|webOS|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
-        || (window.innerWidth <= 768 && ('ontouchstart' in window));
-    if (isMobile) {
-        document.getElementById("mobile-wall").classList.remove("hidden");
-    }
-})();
 
 </script>
 
