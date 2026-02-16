@@ -105,9 +105,17 @@ function resetAll() {
    ═══════════════════════════════════════════════════════════════════════════ */
 
 let _audioCtx = null;
+let _muted = false;
+
+/** Toggle mute on/off. Returns the new muted state. */
+function toggleMute() {
+    _muted = !_muted;
+    return _muted;
+}
 
 /** Play a retro beep. freq in Hz, duration in ms, type defaults to "square". */
 function sfx(freq, duration, type) {
+    if (_muted) return;
     if (!_audioCtx) {
         try { _audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
         catch (e) { return; }
@@ -324,6 +332,12 @@ function showScreen(screenId) {
 document.addEventListener("keydown", function (e) {
     const config = SCREENS[currentScreen];
     if (!config) return;
+
+    // Global mute toggle (M key — works on any screen)
+    if (e.key === "m" || e.key === "M") {
+        toggleMute();
+        return;
+    }
 
     // Global back-navigation (ESC or Q)
     if (e.key === "Escape" || e.key === "q" || e.key === "Q") {
