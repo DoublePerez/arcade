@@ -23,7 +23,7 @@
    ═══════════════════════════════════════════════════════════════════════════ */
 
 const DOS_LINES = [
-    "  ARCAD3 PC BIOS v3.9  (MODEL 5160-XT)",
+    "  ARCAD3 PC BIOS v3.9  (MODEL 5150)",
     "  (C) 2026 ARCAD3 SYSTEMS INC.",
     "",
     "  BASE MEMORY:  128K ............ OK",
@@ -171,8 +171,8 @@ function showIBM() {
     output.classList.remove("hidden");
     output.style.textAlign = "center";
     output.innerHTML = [
-        '<span class="ibm-title">PERSONAL COMPUTER XT</span>',
-        '<span class="ibm-dim">MODEL 5160  |  RELEASED 8 MAR 1983</span>',
+        '<span class="ibm-title">PERSONAL COMPUTER</span>',
+        '<span class="ibm-dim">MODEL 5150  |  RELEASED 12 AUG 1981</span>',
         "",
         '<span class="ibm-dim">+====================================+</span>',
         '<span class="ibm-dim">|  BASE RAM:   128 KB               |</span>',
