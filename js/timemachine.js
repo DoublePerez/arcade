@@ -126,8 +126,8 @@ function renderTMIntro(g) {
     g.textInner("The structure appears to keep score.", r, lp + 2);
     g.textInner("Two teams. One tiny car.", r + 1, lp + 2);
     r += 3;
-    g.textInner("WARNING: This destination is 45 years", r, lp);
-    g.textInner("beyond your current timeline.", r + 1, lp);
+    g.textInner("NOTE: Feb 2026 is 45 years ahead of", r, lp);
+    g.textInner("your current position in the timeline.", r + 1, lp);
     g.textInner("There is no return protocol.", r + 2, lp);
 
     if (tm.blinkOn) {
@@ -187,7 +187,7 @@ function renderTMArrive(g) {
     g.textGreen("C L O W N   T O W N", mid + 1);
     g.textInner("================================", mid + 3);
 
-    g.textInner("It was waiting for you.", mid + 6);
+    g.textInner("You are 45 years from home.", mid + 6);
 
     if (tm.blinkOn) {
         var line = "[ENTER] STEP INSIDE";
