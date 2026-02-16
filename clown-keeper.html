@@ -55,7 +55,7 @@
         .clown-col { flex-shrink: 0; }
 
         .clown-col img {
-            width: 320px;
+            width: 360px;
             display: block;
         }
 
@@ -71,11 +71,11 @@
         .title {
             text-align: center;
             padding-bottom: 28px;
-            border-bottom: 1px solid var(--dim);
+            border-bottom: 1px solid var(--muted);
         }
 
         .title-img {
-            height: 80px;
+            height: 68px;
             image-rendering: pixelated;
             display: block;
             margin: 0 auto;
@@ -90,13 +90,13 @@
             font-size: 10px;
             font-weight: 700;
             letter-spacing: 0.08em;
-            color: var(--dim);
+            color: var(--muted);
             text-decoration: none;
             transition: color 0.2s;
             z-index: 10;
         }
 
-        .back:hover { color: var(--text); }
+        .back:hover { color: var(--bright); }
 
         /* ── SCORES ───────────────────────────────────── */
         .scores {
@@ -143,7 +143,7 @@
         }
 
         /* ── BUTTONS ──────────────────────────────────── */
-        .controls { display: flex; gap: 6px; }
+        .controls { display: flex; gap: 6px; margin-top: 10px; }
 
         .controls button {
             width: 42px;
@@ -152,8 +152,8 @@
             font-size: 14px;
             font-weight: 400;
             color: var(--muted);
-            background: rgba(255, 255, 255, 0.04);
-            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: transparent;
+            border: 1px solid var(--muted);
             cursor: pointer;
             transition: color 0.2s, background 0.2s, border-color 0.2s;
             display: flex;
@@ -164,20 +164,20 @@
         }
 
         .controls button:hover {
-            color: var(--bright);
-            background: rgba(255, 255, 255, 0.08);
-            border-color: rgba(255, 255, 255, 0.14);
+            color: var(--text);
+            background: rgba(255, 255, 255, 0.06);
+            border-color: var(--text);
         }
 
         .controls button:focus-visible {
-            color: var(--bright);
-            border-color: rgba(255, 255, 255, 0.14);
+            color: var(--text);
+            border-color: var(--text);
         }
 
         .controls button:active {
-            color: var(--white);
-            background: rgba(255, 255, 255, 0.12);
-            border-color: rgba(255, 255, 255, 0.18);
+            color: var(--bright);
+            background: rgba(255, 255, 255, 0.10);
+            border-color: var(--bright);
         }
 
         .divider {
@@ -197,8 +197,8 @@
             color: var(--text);
             text-align: center;
             padding: 18px 0;
-            border-top: 1px solid var(--dim);
-            border-bottom: 1px solid var(--dim);
+            border-top: 1px solid var(--muted);
+            border-bottom: 1px solid var(--muted);
         }
 
         .lead .who { color: var(--white); }
@@ -228,6 +228,38 @@
         .dot.a { background: #c0c0c0; }
         .dot.b { background: var(--muted); }
 
+        /* ── MUTE BUTTON (top-right, before info) ──────── */
+        .mute-btn {
+            position: fixed;
+            top: 20px;
+            right: 56px;
+            width: 26px;
+            height: 22px;
+            background: transparent;
+            border: 1px solid var(--muted);
+            color: var(--muted);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.25s;
+            outline: none;
+            -webkit-tap-highlight-color: transparent;
+            z-index: 10;
+            padding: 0;
+        }
+
+        .mute-btn:hover {
+            border-color: var(--text);
+            color: var(--bright);
+        }
+
+        .mute-btn.muted {
+            color: var(--muted);
+            border-color: var(--muted);
+        }
+
+
         /* ── INFO BUTTON + TOOLTIP (top-right corner) ─── */
         .tooltip-wrap {
             position: fixed;
@@ -240,8 +272,8 @@
             width: 22px;
             height: 22px;
             background: transparent;
-            border: 1px solid var(--dim);
-            color: var(--dim);
+            border: 1px solid var(--muted);
+            color: var(--muted);
             font-family: var(--font);
             font-size: 10px;
             font-weight: 400;
@@ -255,8 +287,8 @@
         }
 
         .info-btn:hover {
-            border-color: var(--muted);
-            color: var(--text);
+            border-color: var(--text);
+            color: var(--bright);
         }
 
         .tooltip {
@@ -475,6 +507,19 @@
 
 <a href="#" class="back" onclick="openTravel(); return false;">&larr; ARCADE</a>
 
+<button class="mute-btn" id="mute-btn" onclick="toggleMute()" aria-label="Toggle music">
+    <svg id="icon-unmuted" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+        <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
+        <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+    </svg>
+    <svg id="icon-muted" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none">
+        <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+        <line x1="23" y1="9" x2="17" y2="15"/>
+        <line x1="17" y1="9" x2="23" y2="15"/>
+    </svg>
+</button>
+
 <div class="tooltip-wrap">
     <button class="info-btn" aria-label="Info">?</button>
     <div class="tooltip">
@@ -483,7 +528,8 @@
         <span class="key">&larr; &rarr;</span> SELECT TEAM<br>
         <span class="key">&uarr; &darr;</span> SCORE<br>
         <span class="key">R + R</span> RESET<br>
-        <span class="key">ESC</span> BACK
+        <span class="key">ESC</span> BACK<br>
+        <span class="key">M</span> MUTE / UNMUTE
     </div>
 </div>
 
@@ -769,11 +815,73 @@ document.addEventListener("keydown", function (e) {
         case "ArrowDown": case "s": case "S":
             e.preventDefault(); addScore(sel, -1); break;
         case "r": case "R": tryReset(); break;
+        case "m": case "M": toggleMute(); break;
     }
 });
 
 loadState();
 render();
+
+/* ── CIRCUS MUSIC — "Entry of the Gladiators" ──── */
+// Real recording: U.S. Marine Band (public domain)
+var circusAudio = new Audio("assets/music/circus.oga");
+circusAudio.loop = true;
+circusAudio.volume = 0.45;
+
+var isMuted = false;
+var musicStarted = false;
+
+// Restore mute preference
+try { isMuted = localStorage.getItem("clownMuted") === "1"; } catch(e) {}
+if (isMuted) {
+    document.getElementById("mute-btn").classList.add("muted");
+    document.getElementById("icon-unmuted").style.display = "none";
+    document.getElementById("icon-muted").style.display = "block";
+}
+
+function updateMuteIcon() {
+    var btn = document.getElementById("mute-btn");
+    var iconOn = document.getElementById("icon-unmuted");
+    var iconOff = document.getElementById("icon-muted");
+    if (isMuted) {
+        btn.classList.add("muted");
+        iconOn.style.display = "none";
+        iconOff.style.display = "block";
+    } else {
+        btn.classList.remove("muted");
+        iconOn.style.display = "block";
+        iconOff.style.display = "none";
+    }
+}
+
+function toggleMute() {
+    if (!musicStarted) {
+        musicStarted = true;
+        circusAudio.play().catch(function() {});
+    }
+    isMuted = !isMuted;
+    updateMuteIcon();
+    if (isMuted) {
+        circusAudio.pause();
+    } else {
+        circusAudio.play().catch(function() {});
+    }
+    try { localStorage.setItem("clownMuted", isMuted ? "1" : "0"); } catch(e) {}
+}
+
+// Start music on first user interaction (browser autoplay policy)
+function initMusicOnInteraction() {
+    if (musicStarted || isMuted) return;
+    musicStarted = true;
+    circusAudio.play().catch(function() {});
+}
+
+document.addEventListener("click", initMusicOnInteraction, { once: true });
+document.addEventListener("keydown", function musicInit(e) {
+    initMusicOnInteraction();
+    document.removeEventListener("keydown", musicInit);
+});
+
 </script>
 
 </body>
