@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#0a0a0a">
-    <title>DITHER GARDEN — SCORE KEEPER</title>
+    <title>CLOWN TOWN — SCORE KEEPER</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
@@ -43,8 +43,9 @@
         /* ── LAYOUT ───────────────────────────────────── */
         .app {
             display: flex;
+            flex-direction: row-reverse;
             gap: 56px;
-            max-width: 960px;
+            max-width: 1100px;
             width: 100%;
             padding: 48px;
             align-items: center;
@@ -54,8 +55,7 @@
         .clown-col { flex-shrink: 0; }
 
         .clown-col img {
-            width: 260px;
-            image-rendering: pixelated;
+            width: 320px;
             display: block;
         }
 
@@ -75,7 +75,7 @@
         }
 
         .title-img {
-            height: 64px;
+            height: 80px;
             image-rendering: pixelated;
             display: block;
             margin: 0 auto;
@@ -109,30 +109,30 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 16px;
+            gap: 24px;
             padding: 16px 0;
         }
 
         .team-label {
-            font-size: 10px;
-            font-weight: 400;
-            letter-spacing: 0.18em;
+            font-size: 9px;
+            font-weight: 700;
+            letter-spacing: 0.22em;
             color: var(--muted);
             transition: color 0.15s;
         }
 
-        .team.selected .team-label { color: var(--bright); }
+        .team.selected .team-label { color: var(--white); }
 
         .digits {
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 2px;
-            min-height: 80px;
+            min-height: 100px;
         }
 
         .digits img {
-            height: 80px;
+            height: 100px;
             image-rendering: pixelated;
             display: block;
             transition: transform 0.15s;
@@ -146,10 +146,10 @@
         .controls { display: flex; gap: 6px; }
 
         .controls button {
-            width: 32px;
-            height: 28px;
+            width: 42px;
+            height: 34px;
             font-family: var(--font);
-            font-size: 13px;
+            font-size: 14px;
             font-weight: 400;
             color: var(--muted);
             background: rgba(255, 255, 255, 0.04);
@@ -182,57 +182,51 @@
 
         .divider {
             font-size: 10px;
-            font-weight: 400;
-            color: var(--dim);
-            padding: 0 16px;
-            letter-spacing: 0.14em;
+            font-weight: 700;
+            color: var(--text);
+            padding: 0 24px;
+            letter-spacing: 0.18em;
             align-self: center;
         }
 
         /* ── LEAD STATUS ──────────────────────────────── */
         .lead {
-            font-size: 10px;
-            font-weight: 400;
-            letter-spacing: 0.14em;
-            color: var(--muted);
+            font-size: 9px;
+            font-weight: 700;
+            letter-spacing: 0.18em;
+            color: var(--text);
             text-align: center;
-            padding: 16px 0;
+            padding: 18px 0;
             border-top: 1px solid var(--dim);
             border-bottom: 1px solid var(--dim);
         }
 
-        .lead .who { color: var(--bright); }
+        .lead .who { color: var(--white); }
 
         /* ── HISTORY ──────────────────────────────────── */
         .history {
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 12px;
         }
 
-        .history-label {
-            font-size: 11px;
-            font-weight: 400;
+        .total {
+            font-size: 9px;
+            font-weight: 700;
             letter-spacing: 0.18em;
-            color: var(--muted);
+            color: var(--bright);
         }
 
         .dots {
             display: flex;
             gap: 3px;
             flex-wrap: wrap;
-            min-height: 8px;
+            min-height: 6px;
         }
 
-        .dot { width: 7px; height: 7px; }
+        .dot { width: 6px; height: 6px; }
         .dot.a { background: #c0c0c0; }
         .dot.b { background: var(--muted); }
-
-        .total {
-            font-size: 11px;
-            letter-spacing: 0.1em;
-            color: var(--muted);
-        }
 
         /* ── INFO BUTTON + TOOLTIP (top-right corner) ─── */
         .tooltip-wrap {
@@ -462,8 +456,8 @@
                 padding: 36px 20px;
             }
             .clown-col img { width: 180px; }
-            .digits { min-height: 60px; }
-            .digits img { height: 60px; }
+            .digits { min-height: 72px; }
+            .digits img { height: 72px; }
             .controls button { width: 46px; height: 34px; font-size: 16px; }
             .back { top: 12px; left: 14px; }
         }
@@ -471,8 +465,8 @@
         @media (max-width: 420px) {
             .app { padding: 24px 14px; gap: 24px; }
             .clown-col img { width: 140px; }
-            .digits { min-height: 48px; }
-            .digits img { height: 48px; }
+            .digits { min-height: 56px; }
+            .digits img { height: 56px; }
             .controls button { width: 40px; height: 32px; font-size: 15px; }
         }
     </style>
@@ -526,7 +520,7 @@
 <div class="app">
 
     <div class="clown-col">
-        <img src="assets/clown.png" alt="Clown">
+        <img src="assets/payasito.svg" alt="Clown">
     </div>
 
     <div class="keeper-col">
@@ -558,9 +552,8 @@
         <div class="lead" id="lead">0 &mdash; 0</div>
 
         <div class="history">
-            <div class="history-label">HISTORY</div>
-            <div class="dots" id="dots"></div>
             <div class="total" id="total">TOTAL: 0 CLOWNS</div>
+            <div class="dots" id="dots"></div>
         </div>
 
     </div>
