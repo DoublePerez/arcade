@@ -195,7 +195,7 @@ body::after {
 #screen-boot.ibm-phase #boot-output {
     color: var(--text);
     text-align: center;
-    margin-top: clamp(24px, 4vh, 40px);
+    margin-top: clamp(4px, 1vh, 10px);
     line-height: 1.8;
     text-shadow: var(--glow-soft);
 }

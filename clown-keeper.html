@@ -1,3 +1,64 @@
+<!--
+  ============================================================================
+   CLOWN-KEEPER.HTML — Clown Town Score Keeper
+  ============================================================================
+
+   Standalone score-keeping page accessed via the arcade's Time Machine.
+   Themed as a futuristic "Clown Town" — a place discovered 45 years
+   ahead of the arcade's 1981 setting.
+
+   Architecture:
+     • Self-contained single file (HTML + CSS + JS, no build step)
+     • Two-column flex layout: score keeper (left) + clown illustration (right)
+     • Score digits rendered as pixel-art PNGs (assets/numbers/0-9.png)
+     • State persisted to localStorage (scores, selection, point history)
+     • Background circus music with mute toggle (localStorage preference)
+
+   Layout:
+     ┌──────────────────────────────────────────────────────┐
+     │  ← ARCADE                              [♪] [?]      │  Fixed nav
+     │                                                      │
+     │   ┌─────────────────────┐    ┌─────────────────┐    │
+     │   │    CLOWN TOWN       │    │                 │    │
+     │   │    (title image)     │    │    Clown SVG    │    │
+     │   │                     │    │   (payasito)    │    │
+     │   │  TEAM 1  VS  TEAM 2 │    │                 │    │
+     │   │   00         00     │    │                 │    │
+     │   │  [−][+]     [−][+]  │    └─────────────────┘    │
+     │   │                     │                            │
+     │   │  TEAM 1 LEADS BY 3  │                            │
+     │   │  TOTAL: 12 CLOWNS   │                            │
+     │   │  ■■■■□□■■□■■■       │  ← dot history             │
+     │   └─────────────────────┘                            │
+     └──────────────────────────────────────────────────────┘
+
+   Controls:
+     ← →          Select team
+     ↑ ↓ / W S    Score +1 / −1
+     R + R         Reset (double-tap confirm)
+     M             Mute / unmute music
+     ESC           Open "Leave Clown Town?" overlay
+
+   Navigation:
+     "← ARCADE" link → travel overlay → time travel animation → index.html
+     Reached from:     index.html → menu → Time Machine > 2026 → this page
+
+   Assets:
+     assets/clowntext.png         — "CLOWN TOWN" pixel-art title
+     assets/payasito.svg          — Clown illustration
+     assets/numbers/0-9.png       — Pixel-art score digits
+     assets/music/circus.oga      — "Entry of the Gladiators" (public domain)
+
+   Color hierarchy (dark theme):
+     --bg       #0a0a0a   Background
+     --surface  #141414   Elevated surfaces
+     --dim      #2a2a2a   Subtle borders, inactive elements
+     --muted    #555      Secondary text, default borders
+     --text     #999      Body text, hover borders
+     --bright   #e0e0e0   Emphasis text, active borders
+     --white    #fff      Maximum contrast (selected labels, lead name)
+  ============================================================================
+-->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,6 +70,10 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>
+        /* ══════════════════════════════════════════════════════════
+           RESET & DESIGN TOKENS
+           ══════════════════════════════════════════════════════════ */
+
         *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
         :root {
@@ -40,7 +105,12 @@
 
         .hidden { display: none !important; }
 
-        /* ── LAYOUT ───────────────────────────────────── */
+
+        /* ══════════════════════════════════════════════════════════
+           APP LAYOUT — Two-column flex (score keeper + clown)
+           row-reverse puts the clown on the right visually
+           ══════════════════════════════════════════════════════════ */
+
         .app {
             display: flex;
             flex-direction: row-reverse;
@@ -51,7 +121,9 @@
             align-items: center;
         }
 
-        /* ── CLOWN ────────────────────────────────────── */
+
+        /* ── CLOWN ILLUSTRATION (right column) ───────────── */
+
         .clown-col { flex-shrink: 0; }
 
         .clown-col img {
@@ -59,7 +131,9 @@
             display: block;
         }
 
-        /* ── SCORE KEEPER ─────────────────────────────── */
+
+        /* ── SCORE KEEPER (left column) ──────────────────── */
+
         .keeper-col {
             flex: 1;
             display: flex;
@@ -67,7 +141,11 @@
             gap: 28px;
         }
 
-        /* ── TITLE ────────────────────────────────────── */
+
+        /* ══════════════════════════════════════════════════════════
+           TITLE — Pixel-art "CLOWN TOWN" image
+           ══════════════════════════════════════════════════════════ */
+
         .title {
             text-align: center;
             padding-bottom: 28px;
@@ -81,7 +159,12 @@
             margin: 0 auto;
         }
 
-        /* ── BACK LINK ───────────────────────────────── */
+
+        /* ══════════════════════════════════════════════════════════
+           BACK LINK — Fixed top-left "← ARCADE"
+           Opens the time travel overlay instead of navigating directly
+           ══════════════════════════════════════════════════════════ */
+
         .back {
             position: fixed;
             top: 20px;
@@ -98,12 +181,17 @@
 
         .back:hover { color: var(--bright); }
 
-        /* ── SCORES ───────────────────────────────────── */
+
+        /* ══════════════════════════════════════════════════════════
+           SCORES — Team labels, digit displays, +/− buttons, VS divider
+           ══════════════════════════════════════════════════════════ */
+
         .scores {
             display: flex;
             align-items: center;
         }
 
+        /* Each team column: label → digits → controls */
         .team {
             flex: 1;
             display: flex;
@@ -113,6 +201,7 @@
             padding: 16px 0;
         }
 
+        /* Team name label (9px, muted; white when selected) */
         .team-label {
             font-size: 9px;
             font-weight: 700;
@@ -123,6 +212,7 @@
 
         .team.selected .team-label { color: var(--white); }
 
+        /* Score digit images (pixel-art PNGs) */
         .digits {
             display: flex;
             align-items: center;
@@ -138,11 +228,12 @@
             transition: transform 0.15s;
         }
 
+        /* Pop animation on score change */
         .digits.pop img {
             transform: scale(1.12);
         }
 
-        /* ── BUTTONS ──────────────────────────────────── */
+        /* +/− score buttons — stroke-only, matching separator borders */
         .controls { display: flex; gap: 6px; margin-top: 10px; }
 
         .controls button {
@@ -180,6 +271,7 @@
             border-color: var(--bright);
         }
 
+        /* VS divider between the two teams */
         .divider {
             font-size: 10px;
             font-weight: 700;
@@ -189,7 +281,12 @@
             align-self: center;
         }
 
-        /* ── LEAD STATUS ──────────────────────────────── */
+
+        /* ══════════════════════════════════════════════════════════
+           LEAD STATUS — "TEAM 1 LEADS BY 3" / "TIE"
+           Bordered top and bottom as a visual separator
+           ══════════════════════════════════════════════════════════ */
+
         .lead {
             font-size: 9px;
             font-weight: 700;
@@ -203,7 +300,12 @@
 
         .lead .who { color: var(--white); }
 
-        /* ── HISTORY ──────────────────────────────────── */
+
+        /* ══════════════════════════════════════════════════════════
+           HISTORY — Total count + dot timeline
+           Each dot = 1 point scored, colored by team (last 80 shown)
+           ══════════════════════════════════════════════════════════ */
+
         .history {
             display: flex;
             flex-direction: column;
@@ -228,7 +330,12 @@
         .dot.a { background: #c0c0c0; }
         .dot.b { background: var(--muted); }
 
-        /* ── MUTE BUTTON (top-right, before info) ──────── */
+
+        /* ══════════════════════════════════════════════════════════
+           MUTE BUTTON — Fixed top-right (before info button)
+           Toggles circus music on/off, persists to localStorage
+           ══════════════════════════════════════════════════════════ */
+
         .mute-btn {
             position: fixed;
             top: 20px;
@@ -260,7 +367,11 @@
         }
 
 
-        /* ── INFO BUTTON + TOOLTIP (top-right corner) ─── */
+        /* ══════════════════════════════════════════════════════════
+           INFO BUTTON + TOOLTIP — Fixed top-right corner
+           Hover to reveal keyboard shortcut reference
+           ══════════════════════════════════════════════════════════ */
+
         .tooltip-wrap {
             position: fixed;
             top: 20px;
@@ -319,23 +430,17 @@
             transform: translateY(0);
         }
 
-        .tooltip .key {
-            color: var(--bright);
-        }
+        .tooltip .key   { color: var(--bright); }
+        .tooltip .sep   { display: block; height: 1px; background: var(--dim); margin: 10px 0; }
+        .tooltip .desc  { color: var(--muted); line-height: 1.8; }
 
-        .tooltip .sep {
-            display: block;
-            height: 1px;
-            background: var(--dim);
-            margin: 10px 0;
-        }
 
-        .tooltip .desc {
-            color: var(--muted);
-            line-height: 1.8;
-        }
+        /* ══════════════════════════════════════════════════════════
+           TIME TRAVEL OVERLAY — "Leave Clown Town?" exit sequence
+           Phase 1: Choice dialog (go back / stay)
+           Phase 2: Loading animation with progress bar → redirect
+           ══════════════════════════════════════════════════════════ */
 
-        /* ── TIME TRAVEL OVERLAY ──────────────────────── */
         .travel-overlay {
             position: fixed;
             inset: 0;
@@ -356,6 +461,7 @@
             pointer-events: auto;
         }
 
+        /* Phase 1: Choice dialog */
         .travel-question {
             font-size: 11px;
             font-weight: 700;
@@ -420,6 +526,7 @@
             text-align: center;
         }
 
+        /* Phase 2: Loading animation */
         #travel-loading {
             display: flex;
             flex-direction: column;
@@ -479,7 +586,11 @@
             margin-top: 14px;
         }
 
-        /* ── RESPONSIVE ───────────────────────────────── */
+
+        /* ══════════════════════════════════════════════════════════
+           RESPONSIVE — Mobile breakpoints
+           ══════════════════════════════════════════════════════════ */
+
         @media (max-width: 700px) {
             .app {
                 flex-direction: column;
@@ -505,8 +616,15 @@
 </head>
 <body>
 
+
+<!-- ════════════════════════════════════════════════════════════════════════════
+     FIXED NAVIGATION — Back link, mute button, info/tooltip
+     ════════════════════════════════════════════════════════════════════════════ -->
+
+<!-- Back link — triggers travel overlay (not direct navigation) -->
 <a href="#" class="back" onclick="openTravel(); return false;">&larr; ARCADE</a>
 
+<!-- Mute toggle — speaker icon swaps between unmuted/muted SVGs -->
 <button class="mute-btn" id="mute-btn" onclick="toggleMute()" aria-label="Toggle music">
     <svg id="icon-unmuted" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
@@ -520,6 +638,7 @@
     </svg>
 </button>
 
+<!-- Info button — hover reveals keyboard shortcut tooltip -->
 <div class="tooltip-wrap">
     <button class="info-btn" aria-label="Info">?</button>
     <div class="tooltip">
@@ -533,8 +652,17 @@
     </div>
 </div>
 
+
+<!-- ════════════════════════════════════════════════════════════════════════════
+     TIME TRAVEL OVERLAY — Exit confirmation + loading animation
+     Shown when user presses ESC or clicks "← ARCADE"
+     Phase 1: Choice (go back to 1981 / stay in Clown Town)
+     Phase 2: Loading bar + status messages → redirect to index.html
+     ════════════════════════════════════════════════════════════════════════════ -->
+
 <div class="travel-overlay" id="travel-overlay">
-    <!-- Phase 1: Choice -->
+
+    <!-- Phase 1: Choice dialog -->
     <div id="travel-choice">
         <div class="travel-question">LEAVE CLOWN TOWN?</div>
         <div class="travel-desc">
@@ -548,7 +676,8 @@
         </div>
         <div class="travel-hint">ARROWS SELECT &middot; ENTER CONFIRM</div>
     </div>
-    <!-- Phase 2: Loading -->
+
+    <!-- Phase 2: Time travel loading animation -->
     <div id="travel-loading" class="hidden">
         <div class="travel-year">1981</div>
         <div class="travel-text">TRAVELING BACK IN TIME</div>
@@ -561,20 +690,30 @@
         </div>
         <div class="travel-status" id="travel-status">INITIALIZING</div>
     </div>
+
 </div>
+
+
+<!-- ════════════════════════════════════════════════════════════════════════════
+     MAIN APP — Score keeper interface
+     ════════════════════════════════════════════════════════════════════════════ -->
 
 <div class="app">
 
+    <!-- Clown illustration (right column via row-reverse) -->
     <div class="clown-col">
         <img src="assets/payasito.svg" alt="Clown">
     </div>
 
+    <!-- Score keeper (left column) -->
     <div class="keeper-col">
 
+        <!-- Title: pixel-art "CLOWN TOWN" image -->
         <div class="title">
             <img class="title-img" src="assets/clowntext.png" alt="clown town">
         </div>
 
+        <!-- Score display: Team 1  VS  Team 2 -->
         <div class="scores">
             <div class="team selected" id="team-a">
                 <div class="team-label">TEAM 1</div>
@@ -595,8 +734,10 @@
             </div>
         </div>
 
+        <!-- Lead status: who's winning and by how much -->
         <div class="lead" id="lead">0 &mdash; 0</div>
 
+        <!-- History: total clown count + point-by-point dot timeline -->
         <div class="history">
             <div class="total" id="total">TOTAL: 0 CLOWNS</div>
             <div class="dots" id="dots"></div>
@@ -606,12 +747,24 @@
 
 </div>
 
+
+<!-- ════════════════════════════════════════════════════════════════════════════
+     JAVASCRIPT
+     ════════════════════════════════════════════════════════════════════════════ -->
+
 <script>
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   SCORE STATE & PERSISTENCE
+   Scores, selected team, and point history saved to localStorage.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
 var STORAGE_KEY = "clownKeeper";
 var scoreA = 0, scoreB = 0, sel = "a", pts = [];
 var resetPending = false;
 var resetTimer = null;
 
+/** Save current state to localStorage. */
 function saveState() {
     try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify({
@@ -620,6 +773,7 @@ function saveState() {
     } catch (e) {}
 }
 
+/** Restore state from localStorage on page load. */
 function loadState() {
     try {
         var saved = localStorage.getItem(STORAGE_KEY);
@@ -633,6 +787,12 @@ function loadState() {
     } catch (e) {}
 }
 
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   RENDERING — Digits, lead status, dot history
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/** Convert a number to a string of pixel-art digit <img> tags. */
 function renderDigits(n) {
     var s = String(n), h = "";
     for (var i = 0; i < s.length; i++)
@@ -640,18 +800,68 @@ function renderDigits(n) {
     return h;
 }
 
+/** Briefly scale up the digit images for a "pop" effect. */
 function popDigits(team) {
     var el = document.getElementById("score-" + team);
     el.classList.add("pop");
     setTimeout(function() { el.classList.remove("pop"); }, 150);
 }
 
+/** Full render: scores, selection highlight, lead text, dots, total. */
+function render() {
+    document.getElementById("score-a").innerHTML = renderDigits(scoreA);
+    document.getElementById("score-b").innerHTML = renderDigits(scoreB);
+
+    /* Highlight the selected team */
+    var teamA = document.getElementById("team-a");
+    var teamB = document.getElementById("team-b");
+    if (sel === "a") {
+        teamA.classList.add("selected");
+        teamB.classList.remove("selected");
+    } else {
+        teamB.classList.add("selected");
+        teamA.classList.remove("selected");
+    }
+
+    /* Lead status */
+    var el = document.getElementById("lead");
+    if (scoreA > scoreB) {
+        var diff = scoreA - scoreB;
+        el.innerHTML = '<span class="who">TEAM 1</span> LEADS BY ' + diff;
+    } else if (scoreB > scoreA) {
+        var diff = scoreB - scoreA;
+        el.innerHTML = '<span class="who">TEAM 2</span> LEADS BY ' + diff;
+    } else {
+        el.textContent = "TIE";
+    }
+
+    /* Dot timeline (last 80 points) */
+    var dotsEl = document.getElementById("dots");
+    var h = "";
+    var start = Math.max(0, pts.length - 80);
+    for (var i = start; i < pts.length; i++)
+        h += '<div class="dot ' + pts[i] + '"></div>';
+    dotsEl.innerHTML = h;
+
+    /* Total clown count */
+    var total = scoreA + scoreB;
+    document.getElementById("total").textContent =
+        "TOTAL: " + total + " CLOWNS";
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   SCORE ACTIONS — Add, subtract, reset
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/** Add or subtract a point for the given team ("a" or "b"). */
 function addScore(team, d) {
     if (team === "a") scoreA = Math.max(0, scoreA + d);
     else scoreB = Math.max(0, scoreB + d);
     if (d > 0) {
         pts.push(team);
     } else if (d < 0) {
+        /* Remove the last dot for this team */
         for (var i = pts.length - 1; i >= 0; i--) {
             if (pts[i] === team) { pts.splice(i, 1); break; }
         }
@@ -661,6 +871,7 @@ function addScore(team, d) {
     saveState();
 }
 
+/** Double-tap R to reset. First press shows confirmation, second executes. */
 function tryReset() {
     if (scoreA === 0 && scoreB === 0 && pts.length === 0) return;
     if (resetPending) {
@@ -681,47 +892,18 @@ function tryReset() {
     }, 1500);
 }
 
-function render() {
-    document.getElementById("score-a").innerHTML = renderDigits(scoreA);
-    document.getElementById("score-b").innerHTML = renderDigits(scoreB);
 
-    var teamA = document.getElementById("team-a");
-    var teamB = document.getElementById("team-b");
-    if (sel === "a") {
-        teamA.classList.add("selected");
-        teamB.classList.remove("selected");
-    } else {
-        teamB.classList.add("selected");
-        teamA.classList.remove("selected");
-    }
-
-    var el = document.getElementById("lead");
-    if (scoreA > scoreB) {
-        var diff = scoreA - scoreB;
-        el.innerHTML = '<span class="who">TEAM 1</span> LEADS BY ' + diff;
-    } else if (scoreB > scoreA) {
-        var diff = scoreB - scoreA;
-        el.innerHTML = '<span class="who">TEAM 2</span> LEADS BY ' + diff;
-    } else {
-        el.textContent = "TIE";
-    }
-
-    var dotsEl = document.getElementById("dots");
-    var h = "";
-    var start = Math.max(0, pts.length - 80);
-    for (var i = start; i < pts.length; i++)
-        h += '<div class="dot ' + pts[i] + '"></div>';
-    dotsEl.innerHTML = h;
-
-    var total = scoreA + scoreB;
-    document.getElementById("total").textContent =
-        "TOTAL: " + total + " CLOWNS";
-}
+/* ═══════════════════════════════════════════════════════════════════════════
+   TIME TRAVEL OVERLAY — Exit confirmation + loading sequence
+   ESC or "← ARCADE" opens the overlay. Confirming triggers a 5.8s
+   loading animation with status messages, then redirects to index.html.
+   ═══════════════════════════════════════════════════════════════════════════ */
 
 var travelOpen = false;
-var travelSel = 0; // 0 = go, 1 = stay
+var travelSel = 0;   /* 0 = "GO BACK TO 1981", 1 = "STAY IN CLOWN TOWN" */
 var traveling = false;
 
+/** Open the travel overlay (Phase 1: choice dialog). */
 function openTravel() {
     if (travelOpen || traveling) return;
     travelOpen = true;
@@ -732,6 +914,7 @@ function openTravel() {
     document.getElementById("travel-overlay").classList.add("active");
 }
 
+/** Update visual selection state of the two travel option buttons. */
 function updateTravelSel() {
     var go = document.getElementById("opt-go");
     var stay = document.getElementById("opt-stay");
@@ -744,11 +927,13 @@ function updateTravelSel() {
     }
 }
 
+/** Close the travel overlay without leaving. */
 function cancelTravel() {
     travelOpen = false;
     document.getElementById("travel-overlay").classList.remove("active");
 }
 
+/** Start the time travel loading sequence (Phase 2) → redirect. */
 function confirmTravel() {
     if (traveling) return;
     traveling = true;
@@ -781,7 +966,15 @@ function confirmTravel() {
     }, 5800);
 }
 
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   KEYBOARD HANDLER — Global keydown dispatcher
+   Handles both the travel overlay and the score keeper controls.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
 document.addEventListener("keydown", function (e) {
+
+    /* ── Travel overlay keys (when open) ───────────────── */
     if (travelOpen && !traveling) {
         if (e.key === "ArrowUp" || e.key === "ArrowDown" ||
             e.key === "ArrowLeft" || e.key === "ArrowRight") {
@@ -802,11 +995,17 @@ document.addEventListener("keydown", function (e) {
         }
         return;
     }
+
+    /* Block input while traveling */
     if (traveling) return;
+
+    /* ESC opens the travel overlay */
     if (e.key === "Escape") {
         openTravel();
         return;
     }
+
+    /* ── Score keeper keys ─────────────────────────────── */
     switch (e.key) {
         case "ArrowLeft": sel = "a"; render(); saveState(); break;
         case "ArrowRight": sel = "b"; render(); saveState(); break;
@@ -819,11 +1018,22 @@ document.addEventListener("keydown", function (e) {
     }
 });
 
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   INIT — Load saved state and render
+   ═══════════════════════════════════════════════════════════════════════════ */
+
 loadState();
 render();
 
-/* ── CIRCUS MUSIC — "Entry of the Gladiators" ──── */
-// Real recording: U.S. Marine Band (public domain)
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   CIRCUS MUSIC — "Entry of the Gladiators"
+   Real recording: U.S. Marine Band (public domain)
+   Loops continuously, respects browser autoplay policy.
+   Mute preference persisted to localStorage ("clownMuted").
+   ═══════════════════════════════════════════════════════════════════════════ */
+
 var circusAudio = new Audio("assets/music/circus.oga");
 circusAudio.loop = true;
 circusAudio.volume = 0.45;
@@ -831,7 +1041,7 @@ circusAudio.volume = 0.45;
 var isMuted = false;
 var musicStarted = false;
 
-// Restore mute preference
+/* Restore mute preference from localStorage */
 try { isMuted = localStorage.getItem("clownMuted") === "1"; } catch(e) {}
 if (isMuted) {
     document.getElementById("mute-btn").classList.add("muted");
@@ -839,6 +1049,7 @@ if (isMuted) {
     document.getElementById("icon-muted").style.display = "block";
 }
 
+/** Sync the mute button icon to match the current mute state. */
 function updateMuteIcon() {
     var btn = document.getElementById("mute-btn");
     var iconOn = document.getElementById("icon-unmuted");
@@ -854,6 +1065,7 @@ function updateMuteIcon() {
     }
 }
 
+/** Toggle music on/off. Also starts playback on first use. */
 function toggleMute() {
     if (!musicStarted) {
         musicStarted = true;
@@ -869,7 +1081,7 @@ function toggleMute() {
     try { localStorage.setItem("clownMuted", isMuted ? "1" : "0"); } catch(e) {}
 }
 
-// Start music on first user interaction (browser autoplay policy)
+/** Start music on first user interaction (browser autoplay policy). */
 function initMusicOnInteraction() {
     if (musicStarted || isMuted) return;
     musicStarted = true;
