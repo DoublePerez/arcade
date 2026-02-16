@@ -333,10 +333,12 @@ document.addEventListener("keydown", function (e) {
     const config = SCREENS[currentScreen];
     if (!config) return;
 
-    // Global mute toggle (M key — works on any screen)
+    // Global mute toggle (M key — works on any screen except Magic 8 Ball typing)
     if (e.key === "m" || e.key === "M") {
-        toggleMute();
-        return;
+        if (!(currentScreen === "screen-magic8" && m8.phase === "typing")) {
+            toggleMute();
+            return;
+        }
     }
 
     // Global back-navigation (ESC or Q)

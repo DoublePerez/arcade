@@ -25,6 +25,8 @@ Inspired by Blade Runner LAPD terminals, ACiD BBS art, and CRT scan-line display
 
 Open `index.html` in any modern web browser. No server required.
 
+Desktop only -- phones and tablets are blocked with a retro "Smartphones did not exist in 1981" message.
+
 ---
 
 ## Flow
@@ -32,7 +34,7 @@ Open `index.html` in any modern web browser. No server required.
 1. **Boot Screen** -- Fake terminal POST sequence with typing animation
 2. **Name Entry** -- First-time players enter their name
 3. **Press ENTER** -- Skip or wait for the boot to finish
-4. **Main Menu** -- Select a game with arrows or number keys
+4. **Main Menu** -- Select a game with arrows or number keys (10 items)
 5. **Intro Screen** -- Each game shows controls before starting
 6. **Play** -- Scores update automatically during games
 7. **ESC** -- Return to menu at any time
@@ -104,19 +106,21 @@ Ask a yes/no question, shake the ball, get your fortune. 20 classic responses (p
 | Enter | Ask / Ask again |
 | ESC | Return to menu |
 
----
+### [7] TIME TRAVELER
 
-## Utilities
-
-### [7] SCORE BOARD
-
-View match history and stats for all games. Per-game win/loss records, best scores, last match results.
+A 1981-themed text adventure. Explore a mysterious basement, make choices, and get pulled through a temporal displacement to the year 2026. Typewriter-style text with branching narrative paths.
 
 | Key | Action |
 |-----|--------|
-| N | Change player name |
-| R | Reset all stats |
+| 1/2/3 | Choose option |
+| Left / Right | Yes / No |
+| Enter | Confirm |
+| Any key | Skip typewriter effect |
 | ESC | Return to menu |
+
+---
+
+## Utilities
 
 ### [8] SCORE KEEPER
 
@@ -130,27 +134,76 @@ Manual score tracker with big ASCII digit display. Two teams, +1/-1/reset per te
 | R | Reset all |
 | ESC | Return to menu |
 
+### [9] SCORE BOARD
+
+View match history and stats for all games. Per-game win/loss records, best scores, last match results.
+
+| Key | Action |
+|-----|--------|
+| N | Change player name |
+| R | Reset all stats |
+| ESC | Return to menu |
+
+### [10] TIME MACHINE > 2026
+
+A dramatic forward time-travel sequence (1981 → 2026) with auto-advancing status messages and a progress bar. Launches the Clown Town Score Keeper in a standalone page.
+
+| Key | Action |
+|-----|--------|
+| ESC | Return to menu |
+
+---
+
+## Clown Town Score Keeper
+
+Standalone score-keeping page (`clown-keeper.html`) accessed via the Time Machine. Themed as a futuristic "Clown Town" discovered 45 years ahead of the arcade's 1981 setting.
+
+- Two-team score tracker with pixel-art digit display
+- Clown illustration and circus music
+- Point history dot visualization
+- Lead status and total count
+
+| Key | Action |
+|-----|--------|
+| Left / Right | Select team |
+| Up / Down or W / S | Score +1 / -1 |
+| R + R | Reset (double-tap confirm) |
+| M | Mute / unmute music |
+| ESC | Open leave overlay |
+
 ---
 
 ## File Structure
 
 ```
 index.html           -- Single-page app shell
+clown-keeper.html    -- Clown Town Score Keeper (standalone)
+404.html             -- Retro-styled 404 error page
 css/
   style.css          -- Retro terminal theme + CRT effects
 js/
   grid.js            -- Shared ASCII grid rendering utility
   app.js             -- Score system, arcade data, screen manager
   boot.js            -- Terminal boot sequence + name entry
-  menu.js            -- Game selection menu
+  menu.js            -- Game selection menu (10 items)
   pong.js            -- ASCII Pong engine
   tictactoe.js       -- Tic Tac Toe engine (minimax AI)
   bingo.js           -- Bingo engine
   snake.js           -- Snake engine
   invaders.js        -- Space Invaders engine
   magic8.js          -- Magic 8 Ball
+  timetraveler.js    -- Time Traveler text adventure
+  timemachine.js     -- Time Machine travel sequence
   scores.js          -- Scoreboard screen
   keeper.js          -- Score Keeper screen
+assets/
+  ibm_arcad3.png     -- IBM-style logo for boot screen
+  ascii-art-text.png -- ASCII splash art for boot screen
+  clown.png          -- Clown Town imagery
+  clowntext.png      -- "CLOWN TOWN" pixel-art title
+  payasito.svg       -- Clown illustration
+  numbers/           -- Pixel-art score digits (0-9.png)
+  music/             -- Circus music (public domain)
 readme.md            -- This file
 ```
 
@@ -166,6 +219,7 @@ readme.md            -- This file
 - `requestAnimationFrame` game loops with fixed-timestep physics (Pong)
 - `setInterval` / `setTimeout` tick-based games (Snake, Bingo, Invaders)
 - `localStorage` for score and player data persistence
+- Mobile detection wall for phone/tablet visitors
 
 ---
 
