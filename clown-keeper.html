@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#0a0a0a">
-    <title>CLOWN TOWN — SCORE KEEPER</title>
+    <title>DITHER GARDEN — SCORE KEEPER</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
@@ -38,11 +38,13 @@
             -webkit-user-select: none;
         }
 
+        .hidden { display: none !important; }
+
         /* ── LAYOUT ───────────────────────────────────── */
         .app {
             display: flex;
             gap: 56px;
-            max-width: 940px;
+            max-width: 960px;
             width: 100%;
             padding: 48px;
             align-items: center;
@@ -62,88 +64,39 @@
             flex: 1;
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            gap: 28px;
         }
 
         /* ── TITLE ────────────────────────────────────── */
         .title {
             text-align: center;
-            padding-bottom: 20px;
+            padding-bottom: 28px;
             border-bottom: 1px solid var(--dim);
         }
 
         .title-img {
-            height: 48px;
+            height: 64px;
             image-rendering: pixelated;
             display: block;
             margin: 0 auto;
         }
 
-        .title .sub {
-            font-size: 9px;
-            letter-spacing: 0.28em;
-            color: var(--muted);
-            margin-top: 10px;
-        }
-
-        /* ── INFO BUTTON + TOOLTIP ────────────────────── */
-        .tooltip-wrap {
-            position: relative;
-            display: inline-block;
-            margin-top: 10px;
-        }
-
-        .info-btn {
-            width: 20px;
-            height: 20px;
-            background: transparent;
-            border: 1px solid var(--dim);
-            color: var(--dim);
+        /* ── BACK LINK ───────────────────────────────── */
+        .back {
+            position: fixed;
+            top: 20px;
+            left: 24px;
             font-family: var(--font);
-            font-size: 9px;
+            font-size: 10px;
             font-weight: 700;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.25s;
-            outline: none;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        .info-btn:hover {
-            border-color: var(--muted);
-            color: var(--text);
-        }
-
-        .tooltip {
-            position: absolute;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%) translateY(6px);
-            width: 200px;
-            background: var(--glass);
-            border: 1px solid var(--glass-border);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            padding: 12px 14px;
-            font-size: 8px;
-            font-weight: 400;
-            letter-spacing: 0.04em;
-            color: var(--muted);
-            line-height: 1.8;
-            text-align: center;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.25s, transform 0.25s;
+            letter-spacing: 0.08em;
+            color: var(--dim);
+            text-decoration: none;
+            transition: color 0.2s;
             z-index: 10;
         }
 
-        .tooltip-wrap:hover .tooltip {
-            opacity: 1;
-            pointer-events: auto;
-            transform: translateX(-50%) translateY(0);
-        }
+        .back:hover { color: var(--text); }
 
         /* ── SCORES ───────────────────────────────────── */
         .scores {
@@ -156,18 +109,19 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 14px;
+            gap: 16px;
+            padding: 16px 0;
         }
 
         .team-label {
             font-size: 10px;
-            font-weight: 700;
+            font-weight: 400;
             letter-spacing: 0.18em;
             color: var(--muted);
             transition: color 0.15s;
         }
 
-        .team.selected .team-label { color: var(--white); }
+        .team.selected .team-label { color: var(--bright); }
 
         .digits {
             display: flex;
@@ -181,82 +135,84 @@
             height: 80px;
             image-rendering: pixelated;
             display: block;
+            transition: transform 0.15s;
         }
 
-        /* ── GLASS BUTTONS ────────────────────────────── */
+        .digits.pop img {
+            transform: scale(1.12);
+        }
+
+        /* ── BUTTONS ──────────────────────────────────── */
         .controls { display: flex; gap: 6px; }
 
         .controls button {
-            width: 52px;
-            height: 36px;
+            width: 32px;
+            height: 28px;
             font-family: var(--font);
-            font-size: 18px;
-            font-weight: 700;
-            color: var(--text);
-            background: var(--glass);
-            border: 1px solid var(--glass-border);
+            font-size: 13px;
+            font-weight: 400;
+            color: var(--muted);
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
             cursor: pointer;
-            transition: all 0.15s;
+            transition: color 0.2s, background 0.2s, border-color 0.2s;
             display: flex;
             align-items: center;
             justify-content: center;
             outline: none;
             -webkit-tap-highlight-color: transparent;
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
         }
 
         .controls button:hover {
-            color: var(--white);
-            background: var(--glass-hover);
-            border-color: rgba(255, 255, 255, 0.18);
+            color: var(--bright);
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.14);
         }
 
         .controls button:focus-visible {
-            border-color: rgba(255, 255, 255, 0.2);
-            color: var(--white);
+            color: var(--bright);
+            border-color: rgba(255, 255, 255, 0.14);
         }
 
         .controls button:active {
-            transform: scale(0.94);
             color: var(--white);
-            background: rgba(255, 255, 255, 0.16);
-            border-color: rgba(255, 255, 255, 0.22);
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(255, 255, 255, 0.18);
         }
 
         .divider {
-            font-size: 11px;
-            font-weight: 700;
+            font-size: 10px;
+            font-weight: 400;
             color: var(--dim);
-            padding: 0 20px;
-            padding-bottom: 34px;
-            letter-spacing: 0.1em;
+            padding: 0 16px;
+            letter-spacing: 0.14em;
+            align-self: center;
         }
 
         /* ── LEAD STATUS ──────────────────────────────── */
         .lead {
             font-size: 10px;
-            font-weight: 700;
+            font-weight: 400;
             letter-spacing: 0.14em;
             color: var(--muted);
             text-align: center;
-            padding: 14px 0;
+            padding: 16px 0;
             border-top: 1px solid var(--dim);
             border-bottom: 1px solid var(--dim);
         }
 
-        .lead .who { color: var(--white); }
+        .lead .who { color: var(--bright); }
 
         /* ── HISTORY ──────────────────────────────────── */
         .history {
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 10px;
         }
 
         .history-label {
-            font-size: 9px;
-            font-weight: 700;
+            font-size: 11px;
+            font-weight: 400;
             letter-spacing: 0.18em;
             color: var(--muted);
         }
@@ -273,25 +229,229 @@
         .dot.b { background: var(--muted); }
 
         .total {
-            font-size: 9px;
+            font-size: 11px;
             letter-spacing: 0.1em;
             color: var(--muted);
         }
 
-        /* ── FOOTER HINTS ─────────────────────────────── */
-        .hints {
-            padding-top: 4px;
+        /* ── INFO BUTTON + TOOLTIP (top-right corner) ─── */
+        .tooltip-wrap {
+            position: fixed;
+            top: 20px;
+            right: 24px;
+            z-index: 10;
+        }
+
+        .info-btn {
+            width: 22px;
+            height: 22px;
+            background: transparent;
+            border: 1px solid var(--dim);
+            color: var(--dim);
+            font-family: var(--font);
+            font-size: 10px;
+            font-weight: 400;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.25s;
+            outline: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .info-btn:hover {
+            border-color: var(--muted);
+            color: var(--text);
+        }
+
+        .tooltip {
+            position: absolute;
+            top: 32px;
+            right: 0;
+            width: 200px;
+            background: rgba(20, 20, 20, 0.95);
+            border: 1px solid var(--glass-border);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            padding: 14px 16px;
+            font-size: 9px;
+            font-weight: 400;
+            letter-spacing: 0.06em;
+            color: var(--white);
+            line-height: 2.2;
+            text-align: left;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.25s, transform 0.25s;
+            transform: translateY(-4px);
+        }
+
+        .tooltip-wrap:hover .tooltip {
+            opacity: 1;
+            pointer-events: auto;
+            transform: translateY(0);
+        }
+
+        .tooltip .key {
+            color: var(--bright);
+        }
+
+        .tooltip .sep {
+            display: block;
+            height: 1px;
+            background: var(--dim);
+            margin: 10px 0;
+        }
+
+        .tooltip .desc {
+            color: var(--muted);
+            line-height: 1.8;
+        }
+
+        /* ── TIME TRAVEL OVERLAY ──────────────────────── */
+        .travel-overlay {
+            position: fixed;
+            inset: 0;
+            background: var(--bg);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 0;
+            z-index: 100;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+
+        .travel-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .travel-question {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.18em;
+            color: var(--bright);
+            margin-bottom: 14px;
             text-align: center;
         }
 
-        .hint {
-            font-size: 8px;
-            letter-spacing: 0.08em;
-            color: var(--muted);
-            line-height: 2;
+        .travel-options {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-bottom: 20px;
         }
 
-        .hint span { color: var(--text); }
+        .travel-opt {
+            width: 200px;
+            height: 36px;
+            font-family: var(--font);
+            font-size: 9px;
+            font-weight: 400;
+            letter-spacing: 0.12em;
+            color: var(--muted);
+            background: transparent;
+            border: 1px solid var(--dim);
+            cursor: pointer;
+            transition: all 0.15s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            outline: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .travel-opt:hover {
+            color: var(--text);
+            border-color: var(--muted);
+        }
+
+        .travel-opt.selected {
+            color: var(--bright);
+            border-color: var(--bright);
+        }
+
+        .travel-desc {
+            font-size: 9px;
+            font-weight: 400;
+            letter-spacing: 0.06em;
+            color: var(--muted);
+            text-align: center;
+            line-height: 1.9;
+            margin-bottom: 32px;
+            max-width: 240px;
+        }
+
+        .travel-hint {
+            font-size: 9px;
+            font-weight: 400;
+            letter-spacing: 0.14em;
+            color: var(--dim);
+            text-align: center;
+        }
+
+        #travel-loading {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .travel-year {
+            font-size: 36px;
+            font-weight: 400;
+            letter-spacing: 0.12em;
+            color: var(--bright);
+            margin-bottom: 20px;
+        }
+
+        .travel-text {
+            font-size: 10px;
+            font-weight: 400;
+            letter-spacing: 0.22em;
+            color: var(--muted);
+            margin-bottom: 16px;
+        }
+
+        .travel-sub {
+            font-size: 9px;
+            font-weight: 400;
+            letter-spacing: 0.06em;
+            color: var(--dim);
+            margin-bottom: 28px;
+            text-align: center;
+            line-height: 1.9;
+            max-width: 260px;
+        }
+
+        .travel-bar-track {
+            width: 180px;
+            height: 1px;
+            background: var(--dim);
+        }
+
+        .travel-bar-fill {
+            width: 0;
+            height: 100%;
+            background: var(--bright);
+            transition: width 5s linear;
+        }
+
+        .travel-bar-fill.running {
+            width: 100%;
+        }
+
+        .travel-status {
+            font-size: 9px;
+            font-weight: 400;
+            letter-spacing: 0.14em;
+            color: var(--muted);
+            margin-top: 14px;
+        }
 
         /* ── RESPONSIVE ───────────────────────────────── */
         @media (max-width: 700px) {
@@ -305,6 +465,7 @@
             .digits { min-height: 60px; }
             .digits img { height: 60px; }
             .controls button { width: 46px; height: 34px; font-size: 16px; }
+            .back { top: 12px; left: 14px; }
         }
 
         @media (max-width: 420px) {
@@ -318,6 +479,51 @@
 </head>
 <body>
 
+<a href="#" class="back" onclick="openTravel(); return false;">&larr; ARCADE</a>
+
+<div class="tooltip-wrap">
+    <button class="info-btn" aria-label="Info">?</button>
+    <div class="tooltip">
+        <span class="desc">Two teams. One tiny car.<br>Keep track of every point.</span>
+        <span class="sep"></span>
+        <span class="key">&larr; &rarr;</span> SELECT TEAM<br>
+        <span class="key">&uarr; &darr;</span> SCORE<br>
+        <span class="key">R + R</span> RESET<br>
+        <span class="key">ESC</span> BACK
+    </div>
+</div>
+
+<div class="travel-overlay" id="travel-overlay">
+    <!-- Phase 1: Choice -->
+    <div id="travel-choice">
+        <div class="travel-question">LEAVE CLOWN TOWN?</div>
+        <div class="travel-desc">
+            Clown Town is a score keeper<br>
+            from the future, created Feb 2026.<br>
+            Going back means returning to<br>
+            the 1981 arcade.
+        </div>
+        <div class="travel-options">
+            <button class="travel-opt selected" id="opt-go" onclick="confirmTravel()">GO BACK TO 1981</button>
+            <button class="travel-opt" id="opt-stay" onclick="cancelTravel()">STAY IN CLOWN TOWN</button>
+        </div>
+        <div class="travel-hint">ARROWS SELECT &middot; ENTER CONFIRM</div>
+    </div>
+    <!-- Phase 2: Loading -->
+    <div id="travel-loading" class="hidden">
+        <div class="travel-year">1981</div>
+        <div class="travel-text">TRAVELING BACK IN TIME</div>
+        <div class="travel-sub">
+            LEAVING CLOWN TOWN SCORE KEEPER<br>
+            RETURNING TO RETRO ARCADE TERMINAL
+        </div>
+        <div class="travel-bar-track">
+            <div class="travel-bar-fill" id="travel-bar"></div>
+        </div>
+        <div class="travel-status" id="travel-status">INITIALIZING</div>
+    </div>
+</div>
+
 <div class="app">
 
     <div class="clown-col">
@@ -328,7 +534,6 @@
 
         <div class="title">
             <img class="title-img" src="assets/clowntext.png" alt="clown town">
-            <div class="sub">SCORE KEEPER</div>
         </div>
 
         <div class="scores">
@@ -351,28 +556,12 @@
             </div>
         </div>
 
-        <div class="lead" id="lead">TIED</div>
+        <div class="lead" id="lead">0 &mdash; 0</div>
 
         <div class="history">
             <div class="history-label">HISTORY</div>
             <div class="dots" id="dots"></div>
             <div class="total" id="total">TOTAL: 0 PTS</div>
-        </div>
-
-        <div class="hints">
-            <div class="hint">
-                <span>&larr;&rarr;</span> SELECT
-                <span>&uarr;&darr;</span> SCORE
-                <span>R</span> RESET
-            </div>
-            <div class="tooltip-wrap">
-                <button class="info-btn" aria-label="Info">?</button>
-                <div class="tooltip">
-                    Two teams. One tiny car.<br>
-                    Keep track of every point<br>
-                    with buttons or keyboard.
-                </div>
-            </div>
         </div>
 
     </div>
@@ -382,6 +571,8 @@
 <script>
 var STORAGE_KEY = "clownKeeper";
 var scoreA = 0, scoreB = 0, sel = "a", pts = [];
+var resetPending = false;
+var resetTimer = null;
 
 function saveState() {
     try {
@@ -411,6 +602,12 @@ function renderDigits(n) {
     return h;
 }
 
+function popDigits(team) {
+    var el = document.getElementById("score-" + team);
+    el.classList.add("pop");
+    setTimeout(function() { el.classList.remove("pop"); }, 150);
+}
+
 function addScore(team, d) {
     if (team === "a") scoreA = Math.max(0, scoreA + d);
     else scoreB = Math.max(0, scoreB + d);
@@ -422,11 +619,28 @@ function addScore(team, d) {
         }
     }
     render();
+    popDigits(team);
     saveState();
 }
 
-function resetAll() {
-    scoreA = 0; scoreB = 0; pts = []; render(); saveState();
+function tryReset() {
+    if (scoreA === 0 && scoreB === 0 && pts.length === 0) return;
+    if (resetPending) {
+        clearTimeout(resetTimer);
+        resetPending = false;
+        scoreA = 0; scoreB = 0; pts = [];
+        render();
+        saveState();
+        document.getElementById("lead").textContent = "RESET";
+        setTimeout(function() { render(); }, 600);
+        return;
+    }
+    resetPending = true;
+    document.getElementById("lead").textContent = "PRESS R AGAIN TO RESET";
+    resetTimer = setTimeout(function() {
+        resetPending = false;
+        render();
+    }, 1500);
 }
 
 function render() {
@@ -451,7 +665,7 @@ function render() {
         var diff = scoreB - scoreA;
         el.innerHTML = '<span class="who">TEAM 2</span> LEADS BY ' + diff;
     } else {
-        el.textContent = scoreA === 0 ? "TIED" : "TIED " + scoreA + " \u2014 " + scoreB;
+        el.textContent = "TIE";
     }
 
     var dotsEl = document.getElementById("dots");
@@ -466,7 +680,95 @@ function render() {
         "TOTAL: " + total + " PTS";
 }
 
+var travelOpen = false;
+var travelSel = 0; // 0 = go, 1 = stay
+var traveling = false;
+
+function openTravel() {
+    if (travelOpen || traveling) return;
+    travelOpen = true;
+    travelSel = 0;
+    updateTravelSel();
+    document.getElementById("travel-choice").classList.remove("hidden");
+    document.getElementById("travel-loading").classList.add("hidden");
+    document.getElementById("travel-overlay").classList.add("active");
+}
+
+function updateTravelSel() {
+    var go = document.getElementById("opt-go");
+    var stay = document.getElementById("opt-stay");
+    if (travelSel === 0) {
+        go.classList.add("selected");
+        stay.classList.remove("selected");
+    } else {
+        stay.classList.add("selected");
+        go.classList.remove("selected");
+    }
+}
+
+function cancelTravel() {
+    travelOpen = false;
+    document.getElementById("travel-overlay").classList.remove("active");
+}
+
+function confirmTravel() {
+    if (traveling) return;
+    traveling = true;
+    document.getElementById("travel-choice").classList.add("hidden");
+    document.getElementById("travel-loading").classList.remove("hidden");
+    var bar = document.getElementById("travel-bar");
+    var status = document.getElementById("travel-status");
+    status.textContent = "INITIALIZING TEMPORAL ENGINE";
+    setTimeout(function() {
+        bar.classList.add("running");
+        status.textContent = "DISCONNECTING FROM 2026";
+    }, 400);
+    setTimeout(function() {
+        status.textContent = "REVERSING TEMPORAL FLOW";
+    }, 1400);
+    setTimeout(function() {
+        status.textContent = "BYPASSING PARADOX SAFEGUARDS";
+    }, 2400);
+    setTimeout(function() {
+        status.textContent = "LOCKING COORDINATES — MAR 1981";
+    }, 3400);
+    setTimeout(function() {
+        status.textContent = "STABILIZING TIMELINE";
+    }, 4200);
+    setTimeout(function() {
+        status.textContent = "ARRIVING — 1981";
+    }, 5000);
+    setTimeout(function() {
+        window.location.href = "index.html";
+    }, 5800);
+}
+
 document.addEventListener("keydown", function (e) {
+    if (travelOpen && !traveling) {
+        if (e.key === "ArrowUp" || e.key === "ArrowDown" ||
+            e.key === "ArrowLeft" || e.key === "ArrowRight") {
+            e.preventDefault();
+            travelSel = travelSel === 0 ? 1 : 0;
+            updateTravelSel();
+            return;
+        }
+        if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            if (travelSel === 0) confirmTravel();
+            else cancelTravel();
+            return;
+        }
+        if (e.key === "Escape") {
+            cancelTravel();
+            return;
+        }
+        return;
+    }
+    if (traveling) return;
+    if (e.key === "Escape") {
+        openTravel();
+        return;
+    }
     switch (e.key) {
         case "ArrowLeft": sel = "a"; render(); saveState(); break;
         case "ArrowRight": sel = "b"; render(); saveState(); break;
@@ -474,7 +776,7 @@ document.addEventListener("keydown", function (e) {
             e.preventDefault(); addScore(sel, 1); break;
         case "ArrowDown": case "s": case "S":
             e.preventDefault(); addScore(sel, -1); break;
-        case "r": case "R": resetAll(); break;
+        case "r": case "R": tryReset(); break;
     }
 });
 
