@@ -121,12 +121,11 @@ function renderTMIntro(g) {
     r += 1;
     g.textInner("A structure was detected at the target", r, lp + 2);
     g.textInner("coordinates. Origin: unknown.", r + 1, lp + 2);
-    g.textInner("It calls itself CLOWN TOWN.", r + 2, lp + 2);
+    g.textInner("Designation: CLOWN TOWN.", r + 2, lp + 2);
     r += 4;
     g.textInner("The structure appears to keep score.", r, lp + 2);
     g.textInner("Two teams. One tiny car.", r + 1, lp + 2);
-    g.textInner("No context. No rules. Just points.", r + 2, lp + 2);
-    r += 4;
+    r += 3;
     g.textInner("WARNING: This destination is 45 years", r, lp);
     g.textInner("beyond your current timeline.", r + 1, lp);
     g.textInner("There is no return protocol.", r + 2, lp);
