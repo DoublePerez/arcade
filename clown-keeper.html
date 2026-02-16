@@ -237,8 +237,8 @@
         .controls { display: flex; gap: 6px; margin-top: 10px; }
 
         .controls button {
-            width: 42px;
-            height: 34px;
+            width: 50px;
+            height: 40px;
             font-family: var(--font);
             font-size: 16px;
             font-weight: 400;
@@ -288,17 +288,17 @@
            ══════════════════════════════════════════════════════════ */
 
         .lead {
-            font-size: 11px;
-            font-weight: 700;
+            font-size: 9px;
+            font-weight: 400;
             letter-spacing: 0.18em;
-            color: var(--text);
+            color: var(--muted);
             text-align: center;
-            padding: 18px 0;
-            border-top: 1px solid var(--muted);
-            border-bottom: 1px solid var(--muted);
+            padding: 14px 0;
+            border-top: 1px solid var(--dim);
+            border-bottom: 1px solid var(--dim);
         }
 
-        .lead .who { color: var(--white); }
+        .lead .who { color: var(--text); }
 
 
         /* ══════════════════════════════════════════════════════════
@@ -313,10 +313,10 @@
         }
 
         .total {
-            font-size: 9px;
-            font-weight: 700;
+            font-size: 10px;
+            font-weight: 400;
             letter-spacing: 0.18em;
-            color: var(--bright);
+            color: var(--text);
         }
 
         .dots {
@@ -339,9 +339,9 @@
         .mute-btn {
             position: fixed;
             top: 20px;
-            right: 56px;
-            width: 26px;
-            height: 22px;
+            right: 60px;
+            width: 34px;
+            height: 30px;
             background: transparent;
             border: 1px solid var(--muted);
             color: var(--muted);
@@ -380,13 +380,13 @@
         }
 
         .info-btn {
-            width: 22px;
-            height: 22px;
+            width: 30px;
+            height: 30px;
             background: transparent;
             border: 1px solid var(--muted);
             color: var(--muted);
             font-family: var(--font);
-            font-size: 10px;
+            font-size: 12px;
             font-weight: 400;
             cursor: pointer;
             display: flex;
@@ -406,13 +406,13 @@
             position: absolute;
             top: 32px;
             right: 0;
-            width: 200px;
+            width: 230px;
             background: rgba(20, 20, 20, 0.95);
             border: 1px solid var(--glass-border);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
-            padding: 14px 16px;
-            font-size: 9px;
+            padding: 16px 18px;
+            font-size: 12px;
             font-weight: 400;
             letter-spacing: 0.06em;
             color: var(--white);
@@ -463,7 +463,7 @@
 
         /* Phase 1: Choice dialog */
         .travel-question {
-            font-size: 11px;
+            font-size: 13px;
             font-weight: 700;
             letter-spacing: 0.18em;
             color: var(--bright);
@@ -479,10 +479,10 @@
         }
 
         .travel-opt {
-            width: 200px;
-            height: 36px;
+            width: 240px;
+            height: 42px;
             font-family: var(--font);
-            font-size: 9px;
+            font-size: 11px;
             font-weight: 400;
             letter-spacing: 0.12em;
             color: var(--muted);
@@ -508,7 +508,7 @@
         }
 
         .travel-desc {
-            font-size: 9px;
+            font-size: 11px;
             font-weight: 400;
             letter-spacing: 0.06em;
             color: var(--muted);
@@ -519,7 +519,7 @@
         }
 
         .travel-hint {
-            font-size: 9px;
+            font-size: 11px;
             font-weight: 400;
             letter-spacing: 0.14em;
             color: var(--dim);
@@ -543,7 +543,7 @@
         }
 
         .travel-text {
-            font-size: 10px;
+            font-size: 12px;
             font-weight: 400;
             letter-spacing: 0.22em;
             color: var(--muted);
@@ -551,10 +551,10 @@
         }
 
         .travel-sub {
-            font-size: 9px;
+            font-size: 11px;
             font-weight: 400;
             letter-spacing: 0.06em;
-            color: var(--dim);
+            color: var(--muted);
             margin-bottom: 28px;
             text-align: center;
             line-height: 1.9;
@@ -579,7 +579,7 @@
         }
 
         .travel-status {
-            font-size: 9px;
+            font-size: 11px;
             font-weight: 400;
             letter-spacing: 0.14em;
             color: var(--muted);
@@ -694,12 +694,12 @@
 
 <!-- Mute toggle — speaker icon swaps between unmuted/muted SVGs -->
 <button class="mute-btn" id="mute-btn" onclick="toggleMute()" aria-label="Toggle music">
-    <svg id="icon-unmuted" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <svg id="icon-unmuted" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
         <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
         <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
     </svg>
-    <svg id="icon-muted" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none">
+    <svg id="icon-muted" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none">
         <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
         <line x1="23" y1="9" x2="17" y2="15"/>
         <line x1="17" y1="9" x2="23" y2="15"/>
@@ -734,7 +734,7 @@
     <div id="travel-choice">
         <div class="travel-question">LEAVE CLOWN TOWN?</div>
         <div class="travel-desc">
-            You are 45 years from home.<br>
+            You are 45 days from home.<br>
             The arcade is still back in 1981,<br>
             right where you left it.
         </div>
