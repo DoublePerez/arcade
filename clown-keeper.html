@@ -170,7 +170,7 @@
             top: 20px;
             left: 24px;
             font-family: var(--font);
-            font-size: 10px;
+            font-size: 12px;
             font-weight: 700;
             letter-spacing: 0.08em;
             color: var(--muted);
@@ -201,9 +201,9 @@
             padding: 16px 0;
         }
 
-        /* Team name label (9px, muted; white when selected) */
+        /* Team name label */
         .team-label {
-            font-size: 9px;
+            font-size: 11px;
             font-weight: 700;
             letter-spacing: 0.22em;
             color: var(--muted);
@@ -240,7 +240,7 @@
             width: 42px;
             height: 34px;
             font-family: var(--font);
-            font-size: 14px;
+            font-size: 16px;
             font-weight: 400;
             color: var(--muted);
             background: transparent;
@@ -273,7 +273,7 @@
 
         /* VS divider between the two teams */
         .divider {
-            font-size: 10px;
+            font-size: 12px;
             font-weight: 700;
             color: var(--text);
             padding: 0 24px;
@@ -288,7 +288,7 @@
            ══════════════════════════════════════════════════════════ */
 
         .lead {
-            font-size: 9px;
+            font-size: 11px;
             font-weight: 700;
             letter-spacing: 0.18em;
             color: var(--text);
@@ -612,9 +612,77 @@
             .digits img { height: 56px; }
             .controls button { width: 40px; height: 32px; font-size: 15px; }
         }
+
+
+        /* ══════════════════════════════════════════════════════════
+           MOBILE WALL — "Smartphones didn't exist in 1981"
+           ══════════════════════════════════════════════════════════ */
+
+        .mobile-wall {
+            position: fixed;
+            inset: 0;
+            z-index: 10000;
+            background: var(--bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+
+        .mobile-wall-box {
+            text-align: center;
+            max-width: 340px;
+        }
+
+        .mobile-wall-art {
+            font-family: var(--font);
+            font-size: clamp(0.38rem, 2.8vw, 0.65rem);
+            color: var(--white);
+            line-height: 1.6;
+            white-space: pre;
+            margin-bottom: 32px;
+        }
+
+        .mobile-wall-text {
+            font-family: var(--font);
+            font-size: clamp(0.5rem, 2.5vw, 0.7rem);
+            color: var(--text);
+            line-height: 2;
+            margin-bottom: 24px;
+        }
+
+        .mobile-wall-sub {
+            font-family: var(--font);
+            font-size: clamp(0.45rem, 2vw, 0.6rem);
+            color: var(--muted);
+            line-height: 1.8;
+        }
     </style>
 </head>
 <body>
+
+<!-- ════════════════════════════════════════════════════════════════════════════
+     MOBILE DIALOG — Smartphones didn't exist in 1981
+     ════════════════════════════════════════════════════════════════════════════ -->
+<div id="mobile-wall" class="mobile-wall hidden">
+    <div class="mobile-wall-box">
+        <pre class="mobile-wall-art">
+  +============================+
+  |                            |
+  |   S M A R T P H O N E S   |
+  |                            |
+  |    DID NOT EXIST IN 1981   |
+  |                            |
+  +============================+</pre>
+        <p class="mobile-wall-text">
+            This terminal requires a keyboard<br>
+            and a proper CRT monitor.
+        </p>
+        <p class="mobile-wall-sub">
+            Please visit on a desktop computer.
+        </p>
+    </div>
+</div>
 
 
 <!-- ════════════════════════════════════════════════════════════════════════════
@@ -1093,6 +1161,15 @@ document.addEventListener("keydown", function musicInit(e) {
     initMusicOnInteraction();
     document.removeEventListener("keydown", musicInit);
 });
+
+/* ── Mobile detection — show wall on phones/tablets ─── */
+(function () {
+    var isMobile = /Android|iPhone|iPad|iPod|webOS|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+        || (window.innerWidth <= 768 && ('ontouchstart' in window));
+    if (isMobile) {
+        document.getElementById("mobile-wall").classList.remove("hidden");
+    }
+})();
 
 </script>
 

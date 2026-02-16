@@ -56,6 +56,29 @@
 <body>
 
     <!-- ================================================================
+         MOBILE DIALOG — Smartphones didn't exist in 1981
+         ================================================================ -->
+    <div id="mobile-wall" class="mobile-wall hidden">
+        <div class="mobile-wall-box">
+            <pre class="mobile-wall-art">
+  +============================+
+  |                            |
+  |   S M A R T P H O N E S   |
+  |                            |
+  |    DID NOT EXIST IN 1981   |
+  |                            |
+  +============================+</pre>
+            <p class="mobile-wall-text">
+                This terminal requires a keyboard<br>
+                and a proper CRT monitor.
+            </p>
+            <p class="mobile-wall-sub">
+                Please visit on a desktop computer.
+            </p>
+        </div>
+    </div>
+
+    <!-- ================================================================
          SCREEN: Boot — IBM POST, splash art, name entry, ready prompt
          ================================================================ -->
     <div class="screen active" id="screen-boot">
@@ -162,6 +185,17 @@
     <script src="js/magic8.js?v=4"></script>
     <script src="js/timetraveler.js?v=4"></script>
     <script src="js/timemachine.js?v=4"></script>
+
+    <!-- Mobile detection — show wall on phones/tablets -->
+    <script>
+    (function () {
+        var isMobile = /Android|iPhone|iPad|iPod|webOS|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+            || (window.innerWidth <= 768 && ('ontouchstart' in window));
+        if (isMobile) {
+            document.getElementById("mobile-wall").classList.remove("hidden");
+        }
+    })();
+    </script>
 
 </body>
 </html>
